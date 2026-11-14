@@ -15,6 +15,7 @@ Steps:
   python s1_order.py status     # check progress (jobs take ~10-60 min)
   python s1_order.py download   # download finished jobs, clip, convert to dB
                                 # (safe to run repeatedly while jobs finish)
+Re-running `submit` after changing the selection only orders the missing scenes.
 Output: data/raw_s1/<YYYYMMDD>_VV.tif, _VH.tif, manifest.json
 Then:   python process.py --raw data/raw_s1 --out web/data/s1 --co VV --cross VH
 """
@@ -53,12 +54,18 @@ def pick_scenes():
         start="2019-01-01T00:00:00Z", end="2025-03-31T23:59:59Z",
     )
     scenes = sorted(res, key=lambda r: r.properties["startTime"])
-    picked, months = {}, set()
+    # Sentinel-1B frames on this track only clip the edge of our area (36% coverage),
+    # so within each month prefer the first Sentinel-1A scene (full coverage).
+    by_month = {}
+    for r in scenes:
+        by_month.setdefault(r.properties["startTime"][:7], []).append(r)
+    picked = {}
+    for month, rs in by_month.items():
+        s1a = [r for r in rs if r.properties["sceneName"].startswith("S1A")]
+        r = (s1a or rs)[0]
+        picked[r.properties["startTime"][:10]] = r.properties["sceneName"]
     for r in scenes:
         d = r.properties["startTime"][:10]
-        if d[:7] not in months:              # first scene of each month
-            months.add(d[:7])
-            picked[d] = r.properties["sceneName"]
         if d in VALIDATION_DATES and d not in picked:
             picked[d] = r.properties["sceneName"]
     return [picked[d] for d in sorted(picked)]
@@ -146,9 +153,12 @@ def download():
     if failed:
         print(f"\n{failed} date(s) still missing - run `python s1_order.py download` again.")
 
+    selected = {scene_date(n) for n in pick_scenes()}
     manifest = []
     for vv in sorted(glob.glob(os.path.join(RAW, "*_VV.tif"))):
         date = os.path.basename(vv)[:8]
+        if date not in selected:
+            continue  # e.g. replaced Sentinel-1B partial-coverage scenes
         layers = {"VV": {"path": vv}}
         vh = vv.replace("_VV.tif", "_VH.tif")
         if os.path.exists(vh):

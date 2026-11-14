@@ -19,6 +19,7 @@ Lake-only area: the lake outline is taken from the date with the most water
 the Spree and small ponds outside it are ignored.
 """
 import argparse
+import warnings
 import json
 import os
 
@@ -33,7 +34,9 @@ from scipy.ndimage import binary_dilation, binary_opening, label, median_filter
 try:  # optional: official lake outline (OpenStreetMap) for a trained threshold
     from rasterio.features import rasterize
     from shapely.geometry import mapping, shape
+    import warnings
     from shapely.ops import transform as shp_transform
+    warnings.filterwarnings("ignore", category=DeprecationWarning)
 except ImportError:
     shape = None
 
@@ -159,6 +162,23 @@ def trained_threshold(values_water, values_land):
     return best_t, best_acc
 
 
+def trained_threshold_2d(w_a, w_b, l_a, l_b, step=0.25):
+    """Best pair (ta, tb) for the rule: water = a < ta AND b < tb (max balanced accuracy)."""
+    edges = np.arange(-40.0, 0.0 + step, step)
+    def prep(a, b):
+        ok = np.isfinite(a) & np.isfinite(b)
+        return np.clip(a[ok], -39.99, -0.01), np.clip(b[ok], -39.99, -0.01)
+    w_a, w_b = prep(w_a, w_b)
+    l_a, l_b = prep(l_a, l_b)
+    hw, _, _ = np.histogram2d(w_a, w_b, bins=[edges, edges])
+    hl, _, _ = np.histogram2d(l_a, l_b, bins=[edges, edges])
+    cw = hw.cumsum(0).cumsum(1) / max(len(w_a), 1)
+    cl = hl.cumsum(0).cumsum(1) / max(len(l_a), 1)
+    acc = 0.5 * (cw + (1 - cl))
+    i, j = np.unravel_index(np.argmax(acc), acc.shape)
+    return float(edges[i + 1]), float(edges[j + 1]), float(acc[i, j])
+
+
 def box_mask(box, transform, shape):
     t = Transformer.from_crs(4326, EPSG, always_xy=True)
     w, s, e, n = box
@@ -192,7 +212,10 @@ def main():
     ap.add_argument("--cross", default="HV", help="cross-pol layer name (HV / VH)")
     ap.add_argument("--lake", default="lake.geojson",
                     help="official lake outline (from get_lake.py); used to train the threshold")
-    ap.add_argument("--band", choices=["auto", "co", "cross"], default="auto",
+    ap.add_argument("--flood-start", default=None,
+                    help="YYYYMMDD flooding began; earlier dates teach the model what the dry pit "
+                         "(sand) looks like, e.g. 20190412 for Sentinel-1")
+    ap.add_argument("--band", choices=["auto", "co", "cross", "both"], default="auto",
                     help="which polarization detects water (auto = whichever separates best)")
     ap.add_argument("--train-from", default=None,
                     help="only train on dates >= YYYYMMDD (lake full), e.g. 20241201 for Sentinel-1")
@@ -231,41 +254,69 @@ def main():
 
     lake_poly = load_lake(args.lake)
     band = "co" if args.band == "auto" else args.band
+    thr = {}  # band -> threshold(s)
     if lake_poly is not None:
         inside = poly_mask(lake_poly.buffer(-100), transform, (height, width))
         ring = (poly_mask(lake_poly.buffer(1500), transform, (height, width))
                 & ~poly_mask(lake_poly.buffer(300), transform, (height, width)))
         train = [s for s in stacks if not args.train_from or s[0]["date"] >= args.train_from]
-        print(f"Training on {len(train)} date(s) with the official lake outline "
-              f"({lake_poly.area / 1e6:.2f} km2)")
+        dry = [s for s in stacks if args.flood_start and s[0]["date"] < args.flood_start]
+        print(f"Training on {len(train)} full-lake date(s) with the official lake outline "
+              f"({lake_poly.area / 1e6:.2f} km2)"
+              + (f" + {len(dry)} dry-pit date(s) before {args.flood_start} as land" if dry else ""))
+
+        def samples(idx):
+            w = np.concatenate([s[idx][inside] for s in train])
+            l = np.concatenate([s[idx][ring] for s in train] +
+                               [s[idx][inside] for s in dry])
+            return w, l
+
         results = {}
         for name, idx in (("co", 1), ("cross", 2)):
-            if any(s[idx] is None for s in train):
+            if any(s[idx] is None for s in train + dry):
                 continue
-            w = np.concatenate([s[idx][inside] for s in train])
-            l = np.concatenate([s[idx][ring] for s in train])
+            w, l = samples(idx)
             t, acc = trained_threshold(w, l)
-            results[name] = (t, acc)
+            results[name] = (acc, {name: t})
             label_ = co if name == "co" else cross
-            print(f"  {label_:>2}: water median {np.nanmedian(w):6.1f} dB | land median "
+            print(f"  {label_:>4}: water median {np.nanmedian(w):6.1f} dB | land median "
                   f"{np.nanmedian(l):6.1f} dB | best threshold {t:6.1f} dB | accuracy {acc:.1%}")
+        if "co" in results and "cross" in results:
+            wa, la = samples(1)
+            wb, lb = samples(2)
+            ta, tb, acc = trained_threshold_2d(wa, wb, la, lb)
+            results["both"] = (acc, {"co": ta, "cross": tb})
+            print(f"  both: {co} < {ta:.1f} dB AND {cross} < {tb:.1f} dB | accuracy {acc:.1%}")
         if args.band == "auto":
-            band = max(results, key=lambda k: results[k][1])
-        threshold = results[band][0]
+            band = max(results, key=lambda k: results[k][0])
+        thr = results[band][1]
         zone = poly_mask(lake_poly.buffer(300), transform, (height, width))
     else:
         print("No lake.geojson found -> falling back to Otsu (run get_lake.py for better results)")
-        threshold = otsu(np.concatenate([a[tbox] for _, a, _ in stacks]))
+        thr = {"co": otsu(np.concatenate([a[tbox] for _, a, _ in stacks]))}
+        band = "co"
         zone = None
 
-    idx = 1 if band == "co" else 2
-    used = co if band == "co" else cross
-    print(f"Water detection: {used} < {threshold:.1f} dB")
-    centre = np.nanmedian([np.nanmedian(s[idx][crow-3:crow+4, ccol-3:ccol+4]) for s in stacks])
-    print(f"Median {used} at lake centre: {centre:.1f} dB")
+    names = {"co": co, "cross": cross}
+    rule = " AND ".join(f"{names[k]} < {v:.1f} dB" for k, v in thr.items())
+    print(f"Water detection: {rule}")
+    threshold = thr.get("co", thr.get("cross"))
+    idx = 1 if "co" in thr else 2
+    used = rule
 
-    waters = [binary_opening((s[idx] < threshold) & np.isfinite(s[idx]), iterations=1)
-              for s in stacks]
+    def is_water(s):
+        m = np.ones(s[1].shape, dtype=bool)
+        for k, v in thr.items():
+            arr = s[1] if k == "co" else s[2]
+            m &= np.isfinite(arr) & (arr < v)
+        return binary_opening(m, iterations=1)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        centre = np.nanmedian([np.nanmedian(s[idx][crow-3:crow+4, ccol-3:ccol+4]) for s in stacks])
+    print(f"Median {names['co' if idx == 1 else 'cross']} at lake centre: {centre:.1f} dB")
+
+    waters = [is_water(s) for s in stacks]
     if zone is None:
         zone = lake_zone(waters, transform)
     pixel_km2 = (RES * RES) / 1e6
@@ -278,7 +329,7 @@ def main():
         lake = water & zone
         imgs = {"co": f"{date}_co.png", "water": f"{date}_water.png"}
         save_gray(os.path.join(out, imgs["co"]), a, HH_RANGE)
-        save_water(os.path.join(out, imgs["water"]), water)
+        save_water(os.path.join(out, imgs["water"]), lake)  # blue only inside the lake zone
         if b is not None:
             imgs["cross"] = f"{date}_cross.png"
             imgs["rgb"] = f"{date}_rgb.png"
@@ -294,6 +345,9 @@ def main():
         }
         if e.get("maturity"):
             rec["maturity"] = e["maturity"]
+        if rec["lake_coverage"] < 0.98:
+            print(f"  {date}: only {rec['lake_coverage']:.0%} of the lake visible -> left out")
+            continue
         dates.append(rec)
         flag = " (BETA)" if e.get("maturity") == "BETA" else ""
         print(f"  {date}: lake {rec['lake_km2']:6.2f} km2   all water {rec['all_water_km2']:6.2f} km2"
@@ -305,8 +359,8 @@ def main():
         "source": manifest[0]["file"] if manifest else "",
         "polarizations": {"co": co, "cross": cross},
         "pixel_m": RES,
-        "water_threshold_db": round(threshold, 2),
-        "water_band": used,
+        "water_thresholds_db": {names[k]: round(v, 2) for k, v in thr.items()},
+        "water_rule": rule,
         "corners": corners_lonlat(bounds),
         "dates": dates,
     }
