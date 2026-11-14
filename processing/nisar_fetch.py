@@ -154,10 +154,14 @@ def fetch(granules, track, direction, frame, limit=None):
 
     print(f"Fetching {len(picked)} file(s) for track {track} {direction} frame {frame}")
     manifest = []
-    for g, fobj in zip(picked, earthaccess.open(picked)):
+    best = {}  # date -> valid fraction already saved (some dates have 2 frames)
+    for g in picked:
         name = granule_name(g)
         date = parse(name)["date"]
+        if best.get(date, 0) >= 0.95:
+            continue
         try:
+            fobj = earthaccess.open([g])[0]  # one file at a time: a bad file can't stop the run
             with h5py.File(fobj, "r") as h:
                 grid = h[GRID]
                 win = bbox_window(grid)
@@ -168,19 +172,29 @@ def fetch(granules, track, direction, frame, limit=None):
                 entry = {"date": date, "file": name, "epsg": epsg,
                          "sensor": "NISAR L-band", "maturity": g.get("_maturity"),
                          "layers": {}}
+                arrays = {}
                 for pol, ds in (("HH", "HHHH"), ("HV", "HVHV")):
-                    if ds not in grid:
-                        continue
-                    arr = to_db(grid[ds][rs, cs])
-                    if y_flip:
-                        arr = arr[::-1]
+                    if ds in grid:
+                        arr = to_db(grid[ds][rs, cs])
+                        arrays[pol] = arr[::-1] if y_flip else arr
+                if "HH" not in arrays:
+                    print(f"  {date}: no HH layer, skipped")
+                    continue
+                valid_hh = float(np.isfinite(arrays["HH"]).mean())
+                if valid_hh <= best.get(date, -1):
+                    print(f"  {date}: second frame covers less ({valid_hh:.0%}), kept first")
+                    continue
+                for pol, arr in arrays.items():
                     out = os.path.join(OUT_DIR, f"{date}_{pol}.tif")
                     save_tif(out, arr, transform, epsg)
-                    valid = float(np.isfinite(arr).mean())
-                    entry["layers"][pol] = {"path": out, "valid_fraction": round(valid, 3)}
-                manifest.append(entry)
-                print(f"  {date}: saved {list(entry['layers'])} "
-                      f"(valid pixels: {', '.join(f'{k} {v['valid_fraction']:.0%}' for k, v in entry['layers'].items())})")
+                    entry["layers"][pol] = {
+                        "path": out, "valid_fraction": round(float(np.isfinite(arr).mean()), 3)}
+                best[date] = valid_hh
+                manifest = [e for e in manifest if e["date"] != date] + [entry]
+                summary = ", ".join(
+                    "%s %.0f%%" % (k, v["valid_fraction"] * 100) for k, v in entry["layers"].items())
+                tag = " (BETA)" if entry["maturity"] == "BETA" else ""
+                print(f"  {date}: saved, valid pixels {summary}{tag}")
         except Exception as exc:  # keep going if one file fails
             print(f"  {date}: FAILED ({exc})")
 
