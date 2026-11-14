@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ostsee Rising · A coal mine learns to swim</title>
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="lib/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sky" aria-hidden="true"></div>
+
+  <header>
+    <div class="brand">
+      <h1>Ostsee Rising <span class="sparkle">✦</span></h1>
+      <p class="tagline">A coal mine learns to swim, watched by radar from 747 km up</p>
+    </div>
+    <div class="team">
+      <!-- One star per teammate: edit names and colors here -->
+      <div class="stars" aria-label="Our team">
+        <span class="star" style="--c:#ff8fb1" title="Member 1">★</span>
+        <span class="star" style="--c:#ffd36e" title="Member 2">★</span>
+        <span class="star" style="--c:#7ee8c9" title="Member 3">★</span>
+        <span class="star" style="--c:#b69cff" title="Member 4">★</span>
+      </div>
+      <span class="team-name">by <b>Our Team</b></span>
+      <span id="demo-badge" class="badge badge-demo" hidden>demo data</span>
+    </div>
+  </header>
+
+  <main>
+    <section id="map-wrap">
+      <div id="map"></div>
+
+      <div id="swipe" hidden>
+        <div class="swipe-line"></div>
+        <button class="swipe-handle" aria-label="Drag to compare">✦</button>
+      </div>
+      <div id="lens" hidden></div>
+      <div id="history-legend" class="legend" hidden></div>
+      <div id="map-hint" class="map-hint">✦ Tap or click the lake to see a spot's story</div>
+
+      <div id="label-before" class="map-label left" hidden></div>
+      <div id="label-after" class="map-label right" hidden></div>
+    </section>
+
+    <aside id="panel">
+      <!-- Always visible: where we are in time -->
+      <section class="card now-card">
+        <div class="now">
+          <div>
+            <div id="date" class="date">–</div>
+            <span id="sensor" class="badge">–</span>
+          </div>
+          <div class="area">
+            <span id="area">–</span>
+            <small>km² of lake</small>
+          </div>
+        </div>
+        <div class="time-row">
+          <button id="play" class="icon-btn" aria-label="Play">▶</button>
+          <input id="time" type="range" min="0" value="0" step="1" aria-label="Satellite pass">
+        </div>
+        <div class="chart-box"><canvas id="chart"></canvas></div>
+      </section>
+
+      <nav class="tabs" role="tablist">
+        <button role="tab" data-tab="story" class="active">✦ Story</button>
+        <button role="tab" data-tab="explore">Explore</button>
+      </nav>
+
+      <!-- STORY: each chapter sets the map. data-date: first | last | YYYY-MM-DD (nearest pass is used) -->
+      <section id="tab-story" class="tab-body">
+        <article class="chapter" data-date="first" data-pol="co">
+          <span class="chapter-num">Chapter 1</span>
+          <h3>Once upon a coal mine</h3>
+          <p>For decades, giant diggers pulled lignite out of the Cottbus-Nord mine. On <b>12 April 2019</b> the river Spree was let in.</p>
+          <p>Radar sees calm water as <b>dark</b>. Those first dark specks are the lake's very first puddles.</p>
+        </article>
+
+        <article class="chapter" data-date="2023-09-05" data-play="true">
+          <span class="chapter-num">Chapter 2</span>
+          <h3>The water learns to dance</h3>
+          <p>Every 6 to 12 days a satellite passes over, and the dark patches spread. Separate pools joined into one lake in <b>March 2023</b>.</p>
+          <p>In <b>September 2023</b> officials measured <b>5.9 km²</b> of water. Watch the chart: our radar dot should land on their diamond.</p>
+        </article>
+
+        <article class="chapter" data-date="2025-02-20">
+          <span class="chapter-num">Chapter 3</span>
+          <h3>Full house</h3>
+          <p>On <b>23 December 2024</b> the lake reached its target level of 62.5 m above sea level.</p>
+          <p>By February 2025 it covered <b>18.5 km²</b>, about 2,600 football pitches of brand-new lake.</p>
+        </article>
+
+        <article class="chapter" data-date="last" data-history="true" data-opacity="0.5">
+          <span class="chapter-num">Chapter 4</span>
+          <h3>Six years in one picture</h3>
+          <p>Every coloured pixel is lake. Its colour tells you <b>the year it first went under water</b>: violet for the first puddles, pink and gold for the middle years, aqua for the very last shores.</p>
+          <p>We only count a pixel once it stays wet on the next satellite pass too, so one noisy radar speckle can't fool us.</p>
+        </article>
+
+        <article class="chapter" data-date="last" data-pol="cross" data-compare="swipe" data-before="first">
+          <span class="chapter-num">Chapter 5</span>
+          <h3>NISAR keeps watch</h3>
+          <p>The lake is full, so NASA and ISRO's new <b>NISAR</b> satellite takes the night shift. Its longer radar waves (about 24 cm) slip through leaves.</p>
+          <p>This is <b>plant view</b>: bright shores mean green life is moving back in. Drag the star: 2019 on the left, today on the right.</p>
+        </article>
+
+        <article class="chapter" data-date="2023-09-05" data-opacity="0.35">
+          <span class="chapter-num">Chapter 6</span>
+          <h3>Don't trust us. Check us.</h3>
+          <p>The diamonds on the chart are official measurements by LEAG, the mine operator. Our radar dots should land right on them.</p>
+          <p>We've also faded the radar so you can see a regular photo from space underneath. Same lake, two very different eyes.</p>
+          <button class="cta" data-goto="explore">Explore it yourself ✦</button>
+        </article>
+        <div class="story-end"></div>
+      </section>
+
+      <!-- EXPLORE: all the controls -->
+      <section id="tab-explore" class="tab-body" hidden>
+        <section class="card">
+          <h2>Radar glasses</h2>
+          <div class="segmented" role="group">
+            <button data-pol="co" class="active">Water view <small id="co-name">VV/HH</small></button>
+            <button data-pol="cross">Plant view <small id="cross-name">VH/HV</small></button>
+          </div>
+          <label class="check"><input id="show-water" type="checkbox" checked> Highlight detected water</label>
+          <label class="check"><input id="show-history" type="checkbox"> Water history map <small class="new">✦ new</small></label>
+          <label class="range-label">
+            <span>Radar</span>
+            <input id="opacity" type="range" min="0" max="1" step="0.05" value="0.9" aria-label="Radar vs photo">
+            <span>Photo</span>
+          </label>
+        </section>
+
+        <section class="card">
+          <h2>Compare two dates</h2>
+          <label class="check"><input id="compare" type="checkbox"> Turn on compare</label>
+          <div id="compare-options" hidden>
+            <div class="segmented small" role="group">
+              <button data-mode="swipe" class="active">Swipe</button>
+              <button data-mode="fade">Fade</button>
+              <button data-mode="spy">Spy lens</button>
+            </div>
+            <div class="pickers">
+              <label>Before <select id="before"></select></label>
+              <label>After <select id="after"></select></label>
+            </div>
+            <label id="fade-row" class="range-label" hidden>
+              <span>Before</span>
+              <input id="fade" type="range" min="0" max="1" step="0.02" value="0.5" aria-label="Fade between dates">
+              <span>After</span>
+            </label>
+            <p id="mode-hint" class="hint"></p>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Share</h2>
+          <button id="copy-link" class="cta wide">Copy link to this view</button>
+          <p class="hint">The link opens exactly what you see now: date, radar view, compare mode and map position.</p>
+          <button id="export-gif" class="cta wide ghost">Download timelapse GIF</button>
+          <p class="hint">Every satellite pass as an animated GIF, in the radar view you picked. Great for slides and WhatsApp.</p>
+        </section>
+
+        <section class="card">
+          <details id="explainer">
+            <summary><h2>How radar sees</h2></summary>
+            <div class="explain">
+              <figure>
+                <svg viewBox="0 0 120 70" aria-hidden="true">
+                  <path d="M10 10 L60 50" class="beam"/><path d="M60 50 L110 10" class="beam faint"/>
+                  <rect x="0" y="50" width="120" height="20" class="water"/>
+                </svg>
+                <figcaption><b>Calm water is dark.</b> It reflects the signal away like a mirror, so almost nothing comes back.</figcaption>
+              </figure>
+              <figure>
+                <svg viewBox="0 0 120 70" aria-hidden="true">
+                  <path d="M10 10 L60 46" class="beam"/>
+                  <path d="M60 46 L20 14 M60 46 L45 10 M60 46 L80 12" class="beam back"/>
+                  <path d="M0 52 L15 46 L28 54 L42 44 L58 50 L72 43 L86 52 L100 45 L120 50 L120 70 L0 70Z" class="ground"/>
+                </svg>
+                <figcaption><b>Rough ground is bright.</b> The signal scatters everywhere, and plenty bounces back to the satellite.</figcaption>
+              </figure>
+              <figure>
+                <svg viewBox="0 0 120 70" aria-hidden="true">
+                  <path d="M10 10 L55 40" class="beam"/>
+                  <path d="M55 40 L62 30 L70 42 L58 50 L20 14" class="beam back"/>
+                  <circle cx="62" cy="38" r="14" class="tree"/><circle cx="82" cy="42" r="11" class="tree"/>
+                  <rect x="0" y="56" width="120" height="14" class="ground"/>
+                </svg>
+                <figcaption><b>Plants twist the signal.</b> It bounces around inside leaves and comes back rotated. <i>Plant view</i> (VH/HV) catches exactly that.</figcaption>
+              </figure>
+              <p class="hint">Radar can be fooled too: wind makes water rough (bright), and flooded plants can look bright. That's why we check against official numbers.</p>
+            </div>
+          </details>
+        </section>
+      </section>
+
+      <footer>
+        Built in one weekend for the NASA Space Apps Challenge 2026 · “Dancing with the SARs”<br>
+        Data: NASA-ISRO NISAR, ESA Copernicus Sentinel-1 (via ASF), LEAG
+      </footer>
+    </aside>
+  </main>
+
+  <script src="lib/leaflet.js"></script>
+  <script src="lib/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
