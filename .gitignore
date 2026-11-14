@@ -11,3 +11,11 @@ Thumbs.db
 # never commit logins
 .netrc
 .env
+
+# --- processing pipeline ---
+.venv/
+__pycache__/
+processing/data/
+*.h5
+*.zip
+*.tif
