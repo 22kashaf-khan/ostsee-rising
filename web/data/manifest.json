@@ -1,197 +1,997 @@
 {
-  "demo": true,
-  "bounds": [
-    [
-      51.77,
-      14.37
-    ],
-    [
-      51.84,
-      14.5
-    ]
+ "bounds": [
+  [
+   51.74,
+   14.36
   ],
-  "official": [
-    {
-      "date": "2023-09-05",
-      "area_km2": 5.9,
-      "source": "LEAG, 07.09.2023"
-    },
-    {
-      "date": "2025-02-20",
-      "area_km2": 18.5,
-      "source": "LEAG, 11.06.2025"
-    }
-  ],
-  "frames": [
-    {
-      "date": "2019-04-20",
-      "sensor": "Sentinel-1",
-      "area_km2": 0.4,
-      "layers": {
-        "VV": "frames/2019-04-20_s1_vv.png",
-        "VH": "frames/2019-04-20_s1_vh.png",
-        "water": "frames/2019-04-20_s1_water.png"
-      }
-    },
-    {
-      "date": "2019-10-01",
-      "sensor": "Sentinel-1",
-      "area_km2": 1.1,
-      "layers": {
-        "VV": "frames/2019-10-01_s1_vv.png",
-        "VH": "frames/2019-10-01_s1_vh.png",
-        "water": "frames/2019-10-01_s1_water.png"
-      }
-    },
-    {
-      "date": "2020-05-01",
-      "sensor": "Sentinel-1",
-      "area_km2": 1.9,
-      "layers": {
-        "VV": "frames/2020-05-01_s1_vv.png",
-        "VH": "frames/2020-05-01_s1_vh.png",
-        "water": "frames/2020-05-01_s1_water.png"
-      }
-    },
-    {
-      "date": "2020-10-01",
-      "sensor": "Sentinel-1",
-      "area_km2": 2.4,
-      "layers": {
-        "VV": "frames/2020-10-01_s1_vv.png",
-        "VH": "frames/2020-10-01_s1_vh.png",
-        "water": "frames/2020-10-01_s1_water.png"
-      }
-    },
-    {
-      "date": "2021-05-01",
-      "sensor": "Sentinel-1",
-      "area_km2": 3.3,
-      "layers": {
-        "VV": "frames/2021-05-01_s1_vv.png",
-        "VH": "frames/2021-05-01_s1_vh.png",
-        "water": "frames/2021-05-01_s1_water.png"
-      }
-    },
-    {
-      "date": "2021-10-01",
-      "sensor": "Sentinel-1",
-      "area_km2": 3.9,
-      "layers": {
-        "VV": "frames/2021-10-01_s1_vv.png",
-        "VH": "frames/2021-10-01_s1_vh.png",
-        "water": "frames/2021-10-01_s1_water.png"
-      }
-    },
-    {
-      "date": "2022-05-01",
-      "sensor": "Sentinel-1",
-      "area_km2": 4.6,
-      "layers": {
-        "VV": "frames/2022-05-01_s1_vv.png",
-        "VH": "frames/2022-05-01_s1_vh.png",
-        "water": "frames/2022-05-01_s1_water.png"
-      }
-    },
-    {
-      "date": "2022-10-01",
-      "sensor": "Sentinel-1",
-      "area_km2": 5.2,
-      "layers": {
-        "VV": "frames/2022-10-01_s1_vv.png",
-        "VH": "frames/2022-10-01_s1_vh.png",
-        "water": "frames/2022-10-01_s1_water.png"
-      }
-    },
-    {
-      "date": "2023-05-01",
-      "sensor": "Sentinel-1",
-      "area_km2": 5.7,
-      "layers": {
-        "VV": "frames/2023-05-01_s1_vv.png",
-        "VH": "frames/2023-05-01_s1_vh.png",
-        "water": "frames/2023-05-01_s1_water.png"
-      }
-    },
-    {
-      "date": "2023-09-05",
-      "sensor": "Sentinel-1",
-      "area_km2": 5.9,
-      "layers": {
-        "VV": "frames/2023-09-05_s1_vv.png",
-        "VH": "frames/2023-09-05_s1_vh.png",
-        "water": "frames/2023-09-05_s1_water.png"
-      }
-    },
-    {
-      "date": "2024-05-15",
-      "sensor": "Sentinel-1",
-      "area_km2": 16.8,
-      "layers": {
-        "VV": "frames/2024-05-15_s1_vv.png",
-        "VH": "frames/2024-05-15_s1_vh.png",
-        "water": "frames/2024-05-15_s1_water.png"
-      }
-    },
-    {
-      "date": "2024-10-01",
-      "sensor": "Sentinel-1",
-      "area_km2": 17.6,
-      "layers": {
-        "VV": "frames/2024-10-01_s1_vv.png",
-        "VH": "frames/2024-10-01_s1_vh.png",
-        "water": "frames/2024-10-01_s1_water.png"
-      }
-    },
-    {
-      "date": "2025-02-20",
-      "sensor": "Sentinel-1",
-      "area_km2": 18.4,
-      "layers": {
-        "VV": "frames/2025-02-20_s1_vv.png",
-        "VH": "frames/2025-02-20_s1_vh.png",
-        "water": "frames/2025-02-20_s1_water.png"
-      }
-    },
-    {
-      "date": "2025-06-15",
-      "sensor": "Sentinel-1",
-      "area_km2": 18.5,
-      "layers": {
-        "VV": "frames/2025-06-15_s1_vv.png",
-        "VH": "frames/2025-06-15_s1_vh.png",
-        "water": "frames/2025-06-15_s1_water.png"
-      }
-    },
-    {
-      "date": "2026-06-20",
-      "sensor": "NISAR",
-      "area_km2": 18.5,
-      "layers": {
-        "HH": "frames/2026-06-20_nisar_hh.png",
-        "HV": "frames/2026-06-20_nisar_hv.png",
-        "water": "frames/2026-06-20_nisar_water.png"
-      }
-    },
-    {
-      "date": "2026-08-14",
-      "sensor": "NISAR",
-      "area_km2": 18.4,
-      "layers": {
-        "HH": "frames/2026-08-14_nisar_hh.png",
-        "HV": "frames/2026-08-14_nisar_hv.png",
-        "water": "frames/2026-08-14_nisar_water.png"
-      }
-    },
-    {
-      "date": "2026-10-01",
-      "sensor": "NISAR",
-      "area_km2": 18.5,
-      "layers": {
-        "HH": "frames/2026-10-01_nisar_hh.png",
-        "HV": "frames/2026-10-01_nisar_hv.png",
-        "water": "frames/2026-10-01_nisar_water.png"
-      }
-    }
+  [
+   51.82,
+   14.49
   ]
+ ],
+ "stretch": {
+  "VV": [
+   -25,
+   0
+  ],
+  "VH": [
+   -30,
+   -5
+  ],
+  "HH": [
+   -25,
+   0
+  ],
+  "HV": [
+   -30,
+   -5
+  ]
+ },
+ "official": [
+  {
+   "date": "2023-09-05",
+   "area_km2": 5.9,
+   "source": "LEAG report to Cottbus city council, 07.09.2023 (water level +57.9 m)"
+  },
+  {
+   "date": "2024-02-16",
+   "area_km2": 17.3,
+   "source": "LEAG report to the Brandenburg lignite committee, 14.03.2024"
+  },
+  {
+   "date": "2024-12-23",
+   "area_km2": 18.8,
+   "source": "LEAG: target level +62.5 m reached 23.12.2024; target water area 18.8 km2"
+  }
+ ],
+ "frames": [
+  {
+   "date": "2019-01-10",
+   "sensor": "Sentinel-1",
+   "area_km2": 3.972,
+   "layers": {
+    "VV": "frames/2019-01-10_s1_vv.png",
+    "VH": "frames/2019-01-10_s1_vh.png",
+    "water": "frames/2019-01-10_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-02-03",
+   "sensor": "Sentinel-1",
+   "area_km2": 4.972,
+   "layers": {
+    "VV": "frames/2019-02-03_s1_vv.png",
+    "VH": "frames/2019-02-03_s1_vh.png",
+    "water": "frames/2019-02-03_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-03-11",
+   "sensor": "Sentinel-1",
+   "area_km2": 5.263,
+   "layers": {
+    "VV": "frames/2019-03-11_s1_vv.png",
+    "VH": "frames/2019-03-11_s1_vh.png",
+    "water": "frames/2019-03-11_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-04-04",
+   "sensor": "Sentinel-1",
+   "area_km2": 9.112,
+   "layers": {
+    "VV": "frames/2019-04-04_s1_vv.png",
+    "VH": "frames/2019-04-04_s1_vh.png",
+    "water": "frames/2019-04-04_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-05-10",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.329,
+   "layers": {
+    "VV": "frames/2019-05-10_s1_vv.png",
+    "VH": "frames/2019-05-10_s1_vh.png",
+    "water": "frames/2019-05-10_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-06-03",
+   "sensor": "Sentinel-1",
+   "area_km2": 5.355,
+   "layers": {
+    "VV": "frames/2019-06-03_s1_vv.png",
+    "VH": "frames/2019-06-03_s1_vh.png",
+    "water": "frames/2019-06-03_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-07-09",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.853,
+   "layers": {
+    "VV": "frames/2019-07-09_s1_vv.png",
+    "VH": "frames/2019-07-09_s1_vh.png",
+    "water": "frames/2019-07-09_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-08-02",
+   "sensor": "Sentinel-1",
+   "area_km2": 6.839,
+   "layers": {
+    "VV": "frames/2019-08-02_s1_vv.png",
+    "VH": "frames/2019-08-02_s1_vh.png",
+    "water": "frames/2019-08-02_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-09-07",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.24,
+   "layers": {
+    "VV": "frames/2019-09-07_s1_vv.png",
+    "VH": "frames/2019-09-07_s1_vh.png",
+    "water": "frames/2019-09-07_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-10-01",
+   "sensor": "Sentinel-1",
+   "area_km2": 5.334,
+   "layers": {
+    "VV": "frames/2019-10-01_s1_vv.png",
+    "VH": "frames/2019-10-01_s1_vh.png",
+    "water": "frames/2019-10-01_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-11-06",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.194,
+   "layers": {
+    "VV": "frames/2019-11-06_s1_vv.png",
+    "VH": "frames/2019-11-06_s1_vh.png",
+    "water": "frames/2019-11-06_s1_water.png"
+   }
+  },
+  {
+   "date": "2019-12-12",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.113,
+   "layers": {
+    "VV": "frames/2019-12-12_s1_vv.png",
+    "VH": "frames/2019-12-12_s1_vh.png",
+    "water": "frames/2019-12-12_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-01-05",
+   "sensor": "Sentinel-1",
+   "area_km2": 6.534,
+   "layers": {
+    "VV": "frames/2020-01-05_s1_vv.png",
+    "VH": "frames/2020-01-05_s1_vh.png",
+    "water": "frames/2020-01-05_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-02-10",
+   "sensor": "Sentinel-1",
+   "area_km2": 4.334,
+   "layers": {
+    "VV": "frames/2020-02-10_s1_vv.png",
+    "VH": "frames/2020-02-10_s1_vh.png",
+    "water": "frames/2020-02-10_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-03-05",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.818,
+   "layers": {
+    "VV": "frames/2020-03-05_s1_vv.png",
+    "VH": "frames/2020-03-05_s1_vh.png",
+    "water": "frames/2020-03-05_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-04-10",
+   "sensor": "Sentinel-1",
+   "area_km2": 10.985,
+   "layers": {
+    "VV": "frames/2020-04-10_s1_vv.png",
+    "VH": "frames/2020-04-10_s1_vh.png",
+    "water": "frames/2020-04-10_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-05-04",
+   "sensor": "Sentinel-1",
+   "area_km2": 6.932,
+   "layers": {
+    "VV": "frames/2020-05-04_s1_vv.png",
+    "VH": "frames/2020-05-04_s1_vh.png",
+    "water": "frames/2020-05-04_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-06-09",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.38,
+   "layers": {
+    "VV": "frames/2020-06-09_s1_vv.png",
+    "VH": "frames/2020-06-09_s1_vh.png",
+    "water": "frames/2020-06-09_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-07-03",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.044,
+   "layers": {
+    "VV": "frames/2020-07-03_s1_vv.png",
+    "VH": "frames/2020-07-03_s1_vh.png",
+    "water": "frames/2020-07-03_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-08-08",
+   "sensor": "Sentinel-1",
+   "area_km2": 6.796,
+   "layers": {
+    "VV": "frames/2020-08-08_s1_vv.png",
+    "VH": "frames/2020-08-08_s1_vh.png",
+    "water": "frames/2020-08-08_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-09-01",
+   "sensor": "Sentinel-1",
+   "area_km2": 6.431,
+   "layers": {
+    "VV": "frames/2020-09-01_s1_vv.png",
+    "VH": "frames/2020-09-01_s1_vh.png",
+    "water": "frames/2020-09-01_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-10-07",
+   "sensor": "Sentinel-1",
+   "area_km2": 6.646,
+   "layers": {
+    "VV": "frames/2020-10-07_s1_vv.png",
+    "VH": "frames/2020-10-07_s1_vh.png",
+    "water": "frames/2020-10-07_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-11-12",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.835,
+   "layers": {
+    "VV": "frames/2020-11-12_s1_vv.png",
+    "VH": "frames/2020-11-12_s1_vh.png",
+    "water": "frames/2020-11-12_s1_water.png"
+   }
+  },
+  {
+   "date": "2020-12-06",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.094,
+   "layers": {
+    "VV": "frames/2020-12-06_s1_vv.png",
+    "VH": "frames/2020-12-06_s1_vh.png",
+    "water": "frames/2020-12-06_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-01-11",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.842,
+   "layers": {
+    "VV": "frames/2021-01-11_s1_vv.png",
+    "VH": "frames/2021-01-11_s1_vh.png",
+    "water": "frames/2021-01-11_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-02-04",
+   "sensor": "Sentinel-1",
+   "area_km2": 4.762,
+   "layers": {
+    "VV": "frames/2021-02-04_s1_vv.png",
+    "VH": "frames/2021-02-04_s1_vh.png",
+    "water": "frames/2021-02-04_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-03-12",
+   "sensor": "Sentinel-1",
+   "area_km2": 5.915,
+   "layers": {
+    "VV": "frames/2021-03-12_s1_vv.png",
+    "VH": "frames/2021-03-12_s1_vh.png",
+    "water": "frames/2021-03-12_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-04-05",
+   "sensor": "Sentinel-1",
+   "area_km2": 5.551,
+   "layers": {
+    "VV": "frames/2021-04-05_s1_vv.png",
+    "VH": "frames/2021-04-05_s1_vh.png",
+    "water": "frames/2021-04-05_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-05-11",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.39,
+   "layers": {
+    "VV": "frames/2021-05-11_s1_vv.png",
+    "VH": "frames/2021-05-11_s1_vh.png",
+    "water": "frames/2021-05-11_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-06-04",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.288,
+   "layers": {
+    "VV": "frames/2021-06-04_s1_vv.png",
+    "VH": "frames/2021-06-04_s1_vh.png",
+    "water": "frames/2021-06-04_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-07-10",
+   "sensor": "Sentinel-1",
+   "area_km2": 6.701,
+   "layers": {
+    "VV": "frames/2021-07-10_s1_vv.png",
+    "VH": "frames/2021-07-10_s1_vh.png",
+    "water": "frames/2021-07-10_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-08-03",
+   "sensor": "Sentinel-1",
+   "area_km2": 6.741,
+   "layers": {
+    "VV": "frames/2021-08-03_s1_vv.png",
+    "VH": "frames/2021-08-03_s1_vh.png",
+    "water": "frames/2021-08-03_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-09-08",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.341,
+   "layers": {
+    "VV": "frames/2021-09-08_s1_vv.png",
+    "VH": "frames/2021-09-08_s1_vh.png",
+    "water": "frames/2021-09-08_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-10-02",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.647,
+   "layers": {
+    "VV": "frames/2021-10-02_s1_vv.png",
+    "VH": "frames/2021-10-02_s1_vh.png",
+    "water": "frames/2021-10-02_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-11-07",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.311,
+   "layers": {
+    "VV": "frames/2021-11-07_s1_vv.png",
+    "VH": "frames/2021-11-07_s1_vh.png",
+    "water": "frames/2021-11-07_s1_water.png"
+   }
+  },
+  {
+   "date": "2021-12-01",
+   "sensor": "Sentinel-1",
+   "area_km2": 5.344,
+   "layers": {
+    "VV": "frames/2021-12-01_s1_vv.png",
+    "VH": "frames/2021-12-01_s1_vh.png",
+    "water": "frames/2021-12-01_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-01-06",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.302,
+   "layers": {
+    "VV": "frames/2022-01-06_s1_vv.png",
+    "VH": "frames/2022-01-06_s1_vh.png",
+    "water": "frames/2022-01-06_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-02-11",
+   "sensor": "Sentinel-1",
+   "area_km2": 4.518,
+   "layers": {
+    "VV": "frames/2022-02-11_s1_vv.png",
+    "VH": "frames/2022-02-11_s1_vh.png",
+    "water": "frames/2022-02-11_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-03-07",
+   "sensor": "Sentinel-1",
+   "area_km2": 10.837,
+   "layers": {
+    "VV": "frames/2022-03-07_s1_vv.png",
+    "VH": "frames/2022-03-07_s1_vh.png",
+    "water": "frames/2022-03-07_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-04-12",
+   "sensor": "Sentinel-1",
+   "area_km2": 9.852,
+   "layers": {
+    "VV": "frames/2022-04-12_s1_vv.png",
+    "VH": "frames/2022-04-12_s1_vh.png",
+    "water": "frames/2022-04-12_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-05-06",
+   "sensor": "Sentinel-1",
+   "area_km2": 9.733,
+   "layers": {
+    "VV": "frames/2022-05-06_s1_vv.png",
+    "VH": "frames/2022-05-06_s1_vh.png",
+    "water": "frames/2022-05-06_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-06-11",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.563,
+   "layers": {
+    "VV": "frames/2022-06-11_s1_vv.png",
+    "VH": "frames/2022-06-11_s1_vh.png",
+    "water": "frames/2022-06-11_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-07-05",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.904,
+   "layers": {
+    "VV": "frames/2022-07-05_s1_vv.png",
+    "VH": "frames/2022-07-05_s1_vh.png",
+    "water": "frames/2022-07-05_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-08-10",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.415,
+   "layers": {
+    "VV": "frames/2022-08-10_s1_vv.png",
+    "VH": "frames/2022-08-10_s1_vh.png",
+    "water": "frames/2022-08-10_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-09-03",
+   "sensor": "Sentinel-1",
+   "area_km2": 9.326,
+   "layers": {
+    "VV": "frames/2022-09-03_s1_vv.png",
+    "VH": "frames/2022-09-03_s1_vh.png",
+    "water": "frames/2022-09-03_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-10-09",
+   "sensor": "Sentinel-1",
+   "area_km2": 9.883,
+   "layers": {
+    "VV": "frames/2022-10-09_s1_vv.png",
+    "VH": "frames/2022-10-09_s1_vh.png",
+    "water": "frames/2022-10-09_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-11-02",
+   "sensor": "Sentinel-1",
+   "area_km2": 9.286,
+   "layers": {
+    "VV": "frames/2022-11-02_s1_vv.png",
+    "VH": "frames/2022-11-02_s1_vh.png",
+    "water": "frames/2022-11-02_s1_water.png"
+   }
+  },
+  {
+   "date": "2022-12-08",
+   "sensor": "Sentinel-1",
+   "area_km2": 6.473,
+   "layers": {
+    "VV": "frames/2022-12-08_s1_vv.png",
+    "VH": "frames/2022-12-08_s1_vh.png",
+    "water": "frames/2022-12-08_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-01-01",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.086,
+   "layers": {
+    "VV": "frames/2023-01-01_s1_vv.png",
+    "VH": "frames/2023-01-01_s1_vh.png",
+    "water": "frames/2023-01-01_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-02-06",
+   "sensor": "Sentinel-1",
+   "area_km2": 10.422,
+   "layers": {
+    "VV": "frames/2023-02-06_s1_vv.png",
+    "VH": "frames/2023-02-06_s1_vh.png",
+    "water": "frames/2023-02-06_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-03-02",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.656,
+   "layers": {
+    "VV": "frames/2023-03-02_s1_vv.png",
+    "VH": "frames/2023-03-02_s1_vh.png",
+    "water": "frames/2023-03-02_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-04-07",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.991,
+   "layers": {
+    "VV": "frames/2023-04-07_s1_vv.png",
+    "VH": "frames/2023-04-07_s1_vh.png",
+    "water": "frames/2023-04-07_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-05-01",
+   "sensor": "Sentinel-1",
+   "area_km2": 9.25,
+   "layers": {
+    "VV": "frames/2023-05-01_s1_vv.png",
+    "VH": "frames/2023-05-01_s1_vh.png",
+    "water": "frames/2023-05-01_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-06-06",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.141,
+   "layers": {
+    "VV": "frames/2023-06-06_s1_vv.png",
+    "VH": "frames/2023-06-06_s1_vh.png",
+    "water": "frames/2023-06-06_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-07-12",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.522,
+   "layers": {
+    "VV": "frames/2023-07-12_s1_vv.png",
+    "VH": "frames/2023-07-12_s1_vh.png",
+    "water": "frames/2023-07-12_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-08-05",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.053,
+   "layers": {
+    "VV": "frames/2023-08-05_s1_vv.png",
+    "VH": "frames/2023-08-05_s1_vh.png",
+    "water": "frames/2023-08-05_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-09-10",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.378,
+   "layers": {
+    "VV": "frames/2023-09-10_s1_vv.png",
+    "VH": "frames/2023-09-10_s1_vh.png",
+    "water": "frames/2023-09-10_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-10-04",
+   "sensor": "Sentinel-1",
+   "area_km2": 8.198,
+   "layers": {
+    "VV": "frames/2023-10-04_s1_vv.png",
+    "VH": "frames/2023-10-04_s1_vh.png",
+    "water": "frames/2023-10-04_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-11-09",
+   "sensor": "Sentinel-1",
+   "area_km2": 9.4,
+   "layers": {
+    "VV": "frames/2023-11-09_s1_vv.png",
+    "VH": "frames/2023-11-09_s1_vh.png",
+    "water": "frames/2023-11-09_s1_water.png"
+   }
+  },
+  {
+   "date": "2023-12-03",
+   "sensor": "Sentinel-1",
+   "area_km2": 7.44,
+   "layers": {
+    "VV": "frames/2023-12-03_s1_vv.png",
+    "VH": "frames/2023-12-03_s1_vh.png",
+    "water": "frames/2023-12-03_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-01-08",
+   "sensor": "Sentinel-1",
+   "area_km2": 15.434,
+   "layers": {
+    "VV": "frames/2024-01-08_s1_vv.png",
+    "VH": "frames/2024-01-08_s1_vh.png",
+    "water": "frames/2024-01-08_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-02-01",
+   "sensor": "Sentinel-1",
+   "area_km2": 14.01,
+   "layers": {
+    "VV": "frames/2024-02-01_s1_vv.png",
+    "VH": "frames/2024-02-01_s1_vh.png",
+    "water": "frames/2024-02-01_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-02-13",
+   "sensor": "Sentinel-1",
+   "area_km2": 15.046,
+   "layers": {
+    "VV": "frames/2024-02-13_s1_vv.png",
+    "VH": "frames/2024-02-13_s1_vh.png",
+    "water": "frames/2024-02-13_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-03-08",
+   "sensor": "Sentinel-1",
+   "area_km2": 16.04,
+   "layers": {
+    "VV": "frames/2024-03-08_s1_vv.png",
+    "VH": "frames/2024-03-08_s1_vh.png",
+    "water": "frames/2024-03-08_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-04-01",
+   "sensor": "Sentinel-1",
+   "area_km2": 13.574,
+   "layers": {
+    "VV": "frames/2024-04-01_s1_vv.png",
+    "VH": "frames/2024-04-01_s1_vh.png",
+    "water": "frames/2024-04-01_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-05-07",
+   "sensor": "Sentinel-1",
+   "area_km2": 16.706,
+   "layers": {
+    "VV": "frames/2024-05-07_s1_vv.png",
+    "VH": "frames/2024-05-07_s1_vh.png",
+    "water": "frames/2024-05-07_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-06-12",
+   "sensor": "Sentinel-1",
+   "area_km2": 15.91,
+   "layers": {
+    "VV": "frames/2024-06-12_s1_vv.png",
+    "VH": "frames/2024-06-12_s1_vh.png",
+    "water": "frames/2024-06-12_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-07-06",
+   "sensor": "Sentinel-1",
+   "area_km2": 11.768,
+   "layers": {
+    "VV": "frames/2024-07-06_s1_vv.png",
+    "VH": "frames/2024-07-06_s1_vh.png",
+    "water": "frames/2024-07-06_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-08-11",
+   "sensor": "Sentinel-1",
+   "area_km2": 16.389,
+   "layers": {
+    "VV": "frames/2024-08-11_s1_vv.png",
+    "VH": "frames/2024-08-11_s1_vh.png",
+    "water": "frames/2024-08-11_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-09-04",
+   "sensor": "Sentinel-1",
+   "area_km2": 16.366,
+   "layers": {
+    "VV": "frames/2024-09-04_s1_vv.png",
+    "VH": "frames/2024-09-04_s1_vh.png",
+    "water": "frames/2024-09-04_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-10-10",
+   "sensor": "Sentinel-1",
+   "area_km2": 11.08,
+   "layers": {
+    "VV": "frames/2024-10-10_s1_vv.png",
+    "VH": "frames/2024-10-10_s1_vh.png",
+    "water": "frames/2024-10-10_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-11-03",
+   "sensor": "Sentinel-1",
+   "area_km2": 17.385,
+   "layers": {
+    "VV": "frames/2024-11-03_s1_vv.png",
+    "VH": "frames/2024-11-03_s1_vh.png",
+    "water": "frames/2024-11-03_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-12-09",
+   "sensor": "Sentinel-1",
+   "area_km2": 16.032,
+   "layers": {
+    "VV": "frames/2024-12-09_s1_vv.png",
+    "VH": "frames/2024-12-09_s1_vh.png",
+    "water": "frames/2024-12-09_s1_water.png"
+   }
+  },
+  {
+   "date": "2024-12-21",
+   "sensor": "Sentinel-1",
+   "area_km2": 16.902,
+   "layers": {
+    "VV": "frames/2024-12-21_s1_vv.png",
+    "VH": "frames/2024-12-21_s1_vh.png",
+    "water": "frames/2024-12-21_s1_water.png"
+   }
+  },
+  {
+   "date": "2025-01-02",
+   "sensor": "Sentinel-1",
+   "area_km2": 17.172,
+   "layers": {
+    "VV": "frames/2025-01-02_s1_vv.png",
+    "VH": "frames/2025-01-02_s1_vh.png",
+    "water": "frames/2025-01-02_s1_water.png"
+   }
+  },
+  {
+   "date": "2025-02-07",
+   "sensor": "Sentinel-1",
+   "area_km2": 17.131,
+   "layers": {
+    "VV": "frames/2025-02-07_s1_vv.png",
+    "VH": "frames/2025-02-07_s1_vh.png",
+    "water": "frames/2025-02-07_s1_water.png"
+   }
+  },
+  {
+   "date": "2025-03-03",
+   "sensor": "Sentinel-1",
+   "area_km2": 17.334,
+   "layers": {
+    "VV": "frames/2025-03-03_s1_vv.png",
+    "VH": "frames/2025-03-03_s1_vh.png",
+    "water": "frames/2025-03-03_s1_water.png"
+   }
+  },
+  {
+   "date": "2025-10-28",
+   "sensor": "NISAR",
+   "area_km2": 17.23,
+   "layers": {
+    "HH": "frames/2025-10-28_nisar_hh.png",
+    "HV": "frames/2025-10-28_nisar_hv.png",
+    "water": "frames/2025-10-28_nisar_water.png"
+   },
+   "maturity": "BETA"
+  },
+  {
+   "date": "2025-11-09",
+   "sensor": "NISAR",
+   "area_km2": 18.817,
+   "layers": {
+    "HH": "frames/2025-11-09_nisar_hh.png",
+    "HV": "frames/2025-11-09_nisar_hv.png",
+    "water": "frames/2025-11-09_nisar_water.png"
+   },
+   "maturity": "BETA"
+  },
+  {
+   "date": "2025-11-21",
+   "sensor": "NISAR",
+   "area_km2": 18.943,
+   "layers": {
+    "HH": "frames/2025-11-21_nisar_hh.png",
+    "HV": "frames/2025-11-21_nisar_hv.png",
+    "water": "frames/2025-11-21_nisar_water.png"
+   },
+   "maturity": "BETA"
+  },
+  {
+   "date": "2025-12-03",
+   "sensor": "NISAR",
+   "area_km2": 18.487,
+   "layers": {
+    "HH": "frames/2025-12-03_nisar_hh.png",
+    "HV": "frames/2025-12-03_nisar_hv.png",
+    "water": "frames/2025-12-03_nisar_water.png"
+   },
+   "maturity": "BETA"
+  },
+  {
+   "date": "2025-12-15",
+   "sensor": "NISAR",
+   "area_km2": 18.554,
+   "layers": {
+    "HH": "frames/2025-12-15_nisar_hh.png",
+    "HV": "frames/2025-12-15_nisar_hv.png",
+    "water": "frames/2025-12-15_nisar_water.png"
+   },
+   "maturity": "BETA"
+  },
+  {
+   "date": "2025-12-27",
+   "sensor": "NISAR",
+   "area_km2": 20.384,
+   "layers": {
+    "HH": "frames/2025-12-27_nisar_hh.png",
+    "HV": "frames/2025-12-27_nisar_hv.png",
+    "water": "frames/2025-12-27_nisar_water.png"
+   },
+   "maturity": "BETA"
+  },
+  {
+   "date": "2026-01-08",
+   "sensor": "NISAR",
+   "area_km2": 20.394,
+   "layers": {
+    "HH": "frames/2026-01-08_nisar_hh.png",
+    "HV": "frames/2026-01-08_nisar_hv.png",
+    "water": "frames/2026-01-08_nisar_water.png"
+   },
+   "maturity": "BETA"
+  },
+  {
+   "date": "2026-01-20",
+   "sensor": "NISAR",
+   "area_km2": 20.103,
+   "layers": {
+    "HH": "frames/2026-01-20_nisar_hh.png",
+    "HV": "frames/2026-01-20_nisar_hv.png",
+    "water": "frames/2026-01-20_nisar_water.png"
+   },
+   "maturity": "BETA"
+  },
+  {
+   "date": "2026-06-25",
+   "sensor": "NISAR",
+   "area_km2": 19.622,
+   "layers": {
+    "HH": "frames/2026-06-25_nisar_hh.png",
+    "HV": "frames/2026-06-25_nisar_hv.png",
+    "water": "frames/2026-06-25_nisar_water.png"
+   }
+  },
+  {
+   "date": "2026-07-07",
+   "sensor": "NISAR",
+   "area_km2": 17.689,
+   "layers": {
+    "HH": "frames/2026-07-07_nisar_hh.png",
+    "HV": "frames/2026-07-07_nisar_hv.png",
+    "water": "frames/2026-07-07_nisar_water.png"
+   }
+  },
+  {
+   "date": "2026-07-19",
+   "sensor": "NISAR",
+   "area_km2": 18.9,
+   "layers": {
+    "HH": "frames/2026-07-19_nisar_hh.png",
+    "HV": "frames/2026-07-19_nisar_hv.png",
+    "water": "frames/2026-07-19_nisar_water.png"
+   }
+  },
+  {
+   "date": "2026-08-12",
+   "sensor": "NISAR",
+   "area_km2": 19.06,
+   "layers": {
+    "HH": "frames/2026-08-12_nisar_hh.png",
+    "HV": "frames/2026-08-12_nisar_hv.png",
+    "water": "frames/2026-08-12_nisar_water.png"
+   }
+  },
+  {
+   "date": "2026-08-24",
+   "sensor": "NISAR",
+   "area_km2": 16.55,
+   "layers": {
+    "HH": "frames/2026-08-24_nisar_hh.png",
+    "HV": "frames/2026-08-24_nisar_hv.png",
+    "water": "frames/2026-08-24_nisar_water.png"
+   }
+  },
+  {
+   "date": "2026-09-05",
+   "sensor": "NISAR",
+   "area_km2": 16.134,
+   "layers": {
+    "HH": "frames/2026-09-05_nisar_hh.png",
+    "HV": "frames/2026-09-05_nisar_hv.png",
+    "water": "frames/2026-09-05_nisar_water.png"
+   }
+  },
+  {
+   "date": "2026-09-17",
+   "sensor": "NISAR",
+   "area_km2": 17.022,
+   "layers": {
+    "HH": "frames/2026-09-17_nisar_hh.png",
+    "HV": "frames/2026-09-17_nisar_hv.png",
+    "water": "frames/2026-09-17_nisar_water.png"
+   }
+  },
+  {
+   "date": "2026-09-29",
+   "sensor": "NISAR",
+   "area_km2": 17.606,
+   "layers": {
+    "HH": "frames/2026-09-29_nisar_hh.png",
+    "HV": "frames/2026-09-29_nisar_hv.png",
+    "water": "frames/2026-09-29_nisar_water.png"
+   }
+  },
+  {
+   "date": "2026-10-11",
+   "sensor": "NISAR",
+   "area_km2": 17.346,
+   "layers": {
+    "HH": "frames/2026-10-11_nisar_hh.png",
+    "HV": "frames/2026-10-11_nisar_hv.png",
+    "water": "frames/2026-10-11_nisar_water.png"
+   }
+  }
+ ]
 }
