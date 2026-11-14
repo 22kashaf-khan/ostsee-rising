@@ -1,0 +1,13 @@
+# raw satellite data: far too big for GitHub
+data/s1/
+*.tif
+*.tiff
+*.h5
+*.zip
+# Python and system clutter
+__pycache__/
+.DS_Store
+Thumbs.db
+# never commit logins
+.netrc
+.env
