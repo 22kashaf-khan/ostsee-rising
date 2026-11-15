@@ -24,6 +24,7 @@ const state = {
   fade: 0.5,           // 0 = before, 1 = after
   spy: null,           // lens centre in map container pixels
   history: false,      // water history map on/off
+  dance: false,        // dance map on/off
   shore: false,        // shoreline watch on/off
   shoreFrom: 0,        // shoreline watch: compare this pass ...
   shoreTo: 0,          // ... with this one
@@ -32,7 +33,7 @@ const state = {
 
 const $ = (id) => document.getElementById(id);
 const all = (selector) => document.querySelectorAll(selector);
-let map, slots, chart, playTimer, historyLayer, shoreLayer;
+let map, slots, chart, playTimer, historyLayer, shoreLayer, danceLayer;
 const waterHistory = { ready: false, first: null, width: 0, height: 0 }; // first[p] = frame index when pixel p became water
 
 
@@ -90,6 +91,7 @@ function buildMap(bounds) {
   slots = { before: makeSlot(bounds, "before"), after: makeSlot(bounds, "after") };
   historyLayer = L.imageOverlay(BLANK, bounds, { pane: "history", className: "history-layer", opacity: 0 }).addTo(map);
   shoreLayer = L.imageOverlay(BLANK, bounds, { pane: "shore", opacity: 0 }).addTo(map);
+  danceLayer = L.imageOverlay(BLANK, bounds, { pane: "history", className: "history-layer", opacity: 0 }).addTo(map);
 
   map.on("move zoomend resize", updateCompare);
   map.on("moveend", () => writeLink());
@@ -193,7 +195,7 @@ function paint(slot, frame) {
   }
 
   const water = frame.layers.water;
-  slot.water.setUrl(water ? "data/" + water : BLANK).setOpacity(state.showWater && !state.shore && water ? 1 : 0);
+  slot.water.setUrl(water ? "data/" + water : BLANK).setOpacity(state.showWater && !state.shore && !state.dance && water ? 1 : 0);
 }
 
 
@@ -335,6 +337,71 @@ function buildLegend() {
   }</div>`;
 }
 
+// ---------- dance map: how each spot moved over all passes ----------
+// Every pixel gets one "move", worked out from its water / not-water story across all passes.
+
+const DANCE_MOVES = [
+  { name: "Dark from day one", color: [182, 156, 255, 235],
+    why: "Dark on radar since the very first passes in 2019: old pools, or flat sand that only looks like water." },
+  { name: "Flooded and stayed", color: [110, 231, 249, 235],
+    why: "Became water and stayed water: the rising lake reached this spot." },
+  { name: "Flickers", color: [255, 211, 110, 225],
+    why: "Switches between water and land: a shallow shore, wet sand, or water roughened by wind." },
+  { name: "Was water, isn't now", color: [255, 92, 122, 240],
+    why: "Water for a while, but not in the latest passes: something new on the surface (like the floating solar park) or a retreating edge." },
+];
+const DANCE = { START: 0, FLOODED: 1, FLICKER: 2, LOST: 3 };
+const RECENT_PASSES = 8;
+
+// isWaterAt(k): was this spot water on pass k? Returns a DANCE move, or -1 for land.
+function danceMove(isWaterAt, count) {
+  let wet = 0;
+  for (let k = 0; k < count; k++) if (isWaterAt(k)) wet++;
+  if (wet / count < 0.08) return -1;                    // dry land (a rare wet speckle doesn't count)
+
+  let first = -1;
+  for (let k = 0; k < count && first < 0; k++) if (isWaterAt(k) && staysWater(k, isWaterAt, count)) first = k;
+
+  const recentFrom = Math.max(0, count - RECENT_PASSES);
+  let recent = 0;
+  for (let k = recentFrom; k < count; k++) if (isWaterAt(k)) recent++;
+  recent /= count - recentFrom;
+
+  if (first >= 0 && recent <= 0.25 && wet / count >= 0.15) return DANCE.LOST;
+  if (first >= 0 && recent >= 0.6) {
+    let after = 0;
+    for (let k = first; k < count; k++) if (isWaterAt(k)) after++;
+    if (after / (count - first) >= 0.8) return first <= 2 ? DANCE.START : DANCE.FLOODED;
+  }
+  return DANCE.FLICKER;
+}
+
+const danceMap = { ready: false, building: null, areas: null };
+
+async function buildDance() {
+  const masks = await Promise.all(state.frames.map((f) => loadPixels(f.layers.water)));
+  const { width, height } = masks[0];
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  const image = ctx.createImageData(width, height);
+  const counts = DANCE_MOVES.map(() => 0);
+  for (let p = 0; p < width * height; p++) {
+    const move = danceMove((k) => masks[k].data[p * 4 + 3] > 0, masks.length);
+    if (move < 0) continue;
+    counts[move]++;
+    image.data.set(DANCE_MOVES[move].color, p * 4);
+  }
+  ctx.putImageData(image, 0, 0);
+  danceLayer.setUrl(canvas.toDataURL());
+  const km2 = pixelKm2(width, height);
+  $("dance-legend").innerHTML = `<b>How each spot moved</b><div class="swatches">${
+    DANCE_MOVES.map((m, i) => `<span title="${m.why}"><i style="background:rgba(${m.color.slice(0, 3)},0.95)"></i>${m.name} · ${(counts[i] * km2).toFixed(1)} km²</span>`).join("")
+  }</div>`;
+  danceMap.ready = true;
+}
+
 // ---------- shoreline watch: where the water edge changed between two passes ----------
 
 const SHORE_COLORS = {
@@ -432,7 +499,8 @@ function buildControls() {
     btn.addEventListener("click", () => update({ mode: btn.dataset.mode })));
 
   $("show-water").addEventListener("change", (e) => update({ showWater: e.target.checked }));
-  $("show-history").addEventListener("change", (e) => update({ history: e.target.checked, shore: false }));
+  $("show-history").addEventListener("change", (e) => update({ history: e.target.checked, shore: false, dance: false }));
+  $("show-dance").addEventListener("change", (e) => update({ dance: e.target.checked, history: false, shore: false, compare: false }));
   $("opacity").addEventListener("input", (e) => update({ opacity: +e.target.value }));
   $("fade").addEventListener("input", (e) => update({ fade: +e.target.value }));
 
@@ -444,7 +512,7 @@ function buildControls() {
 
   $("compare").addEventListener("change", (e) => {
     const on = e.target.checked;
-    update({ compare: on, shore: on ? false : state.shore, before: on && state.before === state.index ? 0 : state.before });
+    update({ compare: on, shore: on ? false : state.shore, dance: on ? false : state.dance, before: on && state.before === state.index ? 0 : state.before });
   });
 
   all("[data-tab]").forEach((btn) => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
@@ -460,7 +528,7 @@ function buildControls() {
   state.shoreFrom = Math.max(0, state.shoreTo - 1);
   $("shore").addEventListener("change", (e) => {
     const on = e.target.checked;
-    update(on ? { shore: true, compare: false, history: false, index: state.shoreTo } : { shore: false });
+    update(on ? { shore: true, compare: false, history: false, dance: false, index: state.shoreTo } : { shore: false });
   });
   $("shore-from").addEventListener("change", (e) => update({ shoreFrom: +e.target.value }));
   $("shore-to").addEventListener("change", (e) => update({ shoreTo: +e.target.value, index: +e.target.value }));
@@ -567,6 +635,8 @@ async function showSpot(latlng) {
   const verdict = firstWet < 0
     ? "Never under water: dry land the whole time."
     : `First under water: <b>${series[firstWet].date}</b>`;
+  const move = danceMove((k) => series[k].water === true, series.length);
+  const dance = move < 0 ? "" : `<p class="spot-dance"><i style="background:rgba(${DANCE_MOVES[move].color.slice(0, 3)},0.95)"></i><span><b>${DANCE_MOVES[move].name}.</b> ${DANCE_MOVES[move].why}</span></p>`;
 
   // Each popup owns its marker, canvas and chart. When Leaflet closes the previous popup (it fades out
   // for ~200 ms), that popup only cleans up its own things, never the new ones.
@@ -582,6 +652,7 @@ async function showSpot(latlng) {
         <small>${latlng.lat.toFixed(4)}° N, ${latlng.lng.toFixed(4)}° E</small>
         <div class="spot-chart"><canvas class="spot-canvas"></canvas></div>
         <p>${verdict}</p>
+        ${dance}
         <p class="hint">Filled dots: our water mask says <i>water</i> on that date. Water view drops sharply when the lake arrives.</p>
       </div>`)
     .on("remove", () => {
@@ -631,6 +702,7 @@ function linkFor() {
   if (!state.showWater) p.set("w", "0");
   if (state.opacity !== DEFAULT_OPACITY) p.set("o", state.opacity);
   if (state.history) p.set("h", "1");
+  if (state.dance) p.set("dm", "1");
   if (state.compare) {
     p.set("c", state.mode);
     p.set("b", f[state.before].date);
@@ -663,6 +735,7 @@ function readLink() {
     showWater: p.get("w") !== "0",
     opacity: unit(p.get("o"), DEFAULT_OPACITY),
     history: p.get("h") === "1",
+    dance: p.get("dm") === "1" && p.get("h") !== "1",
     compare: p.has("c"),
     mode: ["swipe", "fade", "spy"].includes(p.get("c")) ? p.get("c") : "swipe",
     before: p.has("b") ? at(p.get("b")) : 0,
@@ -953,6 +1026,10 @@ function render() {
     waterHistory.building = buildHistory().then(render);
   }
   historyLayer.setOpacity(state.history && waterHistory.ready ? 1 : 0);
+  if (state.dance && !danceMap.ready && !danceMap.building) danceMap.building = buildDance().then(render);
+  danceLayer.setOpacity(state.dance && danceMap.ready ? 1 : 0);
+  $("dance-legend").hidden = !(state.dance && danceMap.ready);
+  $("show-dance").checked = state.dance;
   renderShore();
   $("history-legend").hidden = !(state.history && waterHistory.ready);
 
@@ -964,7 +1041,7 @@ function render() {
   $("sensor").className = `badge ${now.sensor === "NISAR" ? "nisar" : "s1"}`;
   $("co-name").textContent = now.layers.VV ? "VV" : "HH";
   $("cross-name").textContent = now.layers.VH ? "VH vs VV" : "HV vs HH";
-  $("plant-legend").hidden = state.pol !== "cross" || (state.history && waterHistory.ready);
+  $("plant-legend").hidden = state.pol !== "cross" || (state.history && waterHistory.ready) || state.dance;
 
   // keep every control in sync, whether the change came from the story or from a click
   $("time").value = state.index;

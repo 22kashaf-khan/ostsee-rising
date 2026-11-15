@@ -448,3 +448,7 @@ html.intro-on, html.intro-on body { overflow: hidden; }
 /* compare is unavailable while the water history map is on */
 .check:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }
 .check input:disabled { cursor: not-allowed; }
+
+/* ---------- dance map ---------- */
+.spot-dance { display: flex; gap: 6px; align-items: flex-start; }
+.spot-dance i { flex: none; width: 10px; height: 10px; border-radius: 3px; margin-top: 4px; }
