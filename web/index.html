@@ -14,6 +14,22 @@
 <body>
   <div class="sky" aria-hidden="true"></div>
 
+  <!-- Intro: scroll to fly from the globe down to Cottbus. Removed by intro.js when done. -->
+  <section id="intro" tabindex="-1" aria-label="Introduction">
+    <div class="intro-stage">
+      <div id="globe" aria-hidden="true"></div>
+      <div class="intro-title">
+        <p class="intro-eyebrow">NASA Space Apps 2026 · Dancing with the SARs</p>
+        <h1>Ostsee Rising <span class="sparkle">✦</span></h1>
+        <p class="intro-tag">A coal mine learns to swim, watched from space.</p>
+        <p class="intro-by">by <b>Cosmic Chicks</b></p>
+      </div>
+      <div class="intro-cue" aria-hidden="true">Scroll to fly down<i>✦</i></div>
+      <button class="intro-skip">Skip intro ✦</button>
+    </div>
+    <div class="intro-track" aria-hidden="true"></div>
+  </section>
+
   <header>
     <div class="brand">
       <h1>Ostsee Rising <span class="sparkle">✦</span></h1>
@@ -210,5 +226,7 @@
   <script src="lib/leaflet.js"></script>
   <script src="lib/chart.umd.min.js"></script>
   <script src="app.js?v=dev"></script>
+  <script src="lib/globe.gl.min.js"></script>
+  <script src="intro.js?v=dev"></script>
 </body>
 </html>

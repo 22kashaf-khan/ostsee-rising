@@ -6,8 +6,9 @@ If anything is wrong, the deploy stops and the last working site stays online.
 
 Checks:
   1. every element app.js looks up with $("id") exists in index.html
-  2. index.html loads app.js and style.css with a ?v= version (so browsers never mix old and new files)
-  3. manifest.json is valid and every image it lists exists
+  2. index.html loads app.js, style.css and intro.js with a ?v= version (so browsers never mix old and new files)
+  3. every script and stylesheet index.html loads exists
+  4. manifest.json is valid and every image it lists exists
 """
 import json
 import re
@@ -27,11 +28,18 @@ for element_id in sorted(set(re.findall(r'\$\("([^"]+)"\)', js))):
         problems.append(f'app.js uses $("{element_id}") but index.html has no id="{element_id}"')
 
 # 2. versioned script and stylesheet
-for name in ("app.js", "style.css"):
+for name in ("app.js", "style.css", "intro.js"):
     if not re.search(rf'"{re.escape(name)}\?v=[^"]+"', html):
         problems.append(f"index.html must load {name} as {name}?v=dev (the deploy fills in the version)")
 
-# 3. data
+# 3. files the page loads must exist (e.g. the intro globe)
+for src in re.findall(r'(?:src|href)="([^"?#:]+\.(?:js|css))', html):
+    if not (WEB / src).exists():
+        problems.append(f"index.html loads {src}, but that file is missing")
+if "intro.js" in html and not (WEB / "data" / "globe-dots.json").exists():
+    problems.append("intro.js needs data/globe-dots.json")
+
+# 4. data
 try:
     manifest = json.loads((WEB / "data" / "manifest.json").read_text(encoding="utf-8"))
     frames = manifest["frames"]

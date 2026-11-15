@@ -15,6 +15,7 @@ Open http://localhost:8000. Opening `index.html` directly won't work, because br
 
 | Feature | Where | How it works |
 |---|---|---|
+| Globe intro | First visit | Scroll to fly from a dot globe (globe.gl) down to Cottbus; "Skip intro" or a shared link jumps straight in |
 | Story mode | Story tab | 6 chapters drive the map as you scroll (map pinned on top on phones) |
 | Time slider + play | Top card | Steps through every satellite pass; chart ring follows |
 | Water / plant view | Explore → Radar glasses | Co-pol (VV/HH) vs cross-pol (VH/HV) images |
@@ -32,7 +33,8 @@ Open http://localhost:8000. Opening `index.html` directly won't work, because br
 | `web/` | The website (no build step: plain HTML, CSS, JS) |
 | `web/DATA_CONTRACT.md` | **Read this, data team.** Exact files the website expects |
 | `web/data/` | `manifest.json` + PNG frames: 94 real satellite passes, 2019–2026 |
-| `web/lib/` | Leaflet (map), Chart.js (charts), gifenc (GIF export): stored locally so the demo works on bad Wi-Fi |
+| `web/lib/` | Leaflet (map), Chart.js (charts), gifenc (GIF export), globe.gl (intro globe, MIT licence): stored locally so the demo works on bad Wi-Fi |
+| `tools/check_site.py` | Safety check that runs before every deploy |
 | `processing/get_lake.py` | Lake outline from OpenStreetMap → `lake.geojson` |
 | `processing/s1_order.py` | Sentinel-1 (2019–2025): orders terrain-corrected images from NASA ASF HyP3, then downloads them |
 | `processing/nisar_fetch.py` | NISAR (2025–2026): reads only the pixels around the lake from NASA Earthdata |

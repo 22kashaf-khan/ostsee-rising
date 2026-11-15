@@ -376,3 +376,58 @@ footer { padding: 8px 4px 0; font-size: 11.5px; color: var(--muted); }
   .tab-body { overflow: visible; }
   .story-end { height: 30vh; }
 }
+
+
+/* ---------- intro: globe that flies down to Cottbus ---------- */
+html.intro-on, html.intro-on body { overflow: hidden; }
+#intro {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  overflow-y: auto;
+  outline: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 85% 0%, rgba(255, 143, 216, 0.18), transparent 70%),
+    linear-gradient(160deg, var(--night) 0%, var(--night-2) 100%);
+  transition: opacity 0.9s ease;
+}
+#intro.leaving { opacity: 0; pointer-events: none; }
+.intro-track { height: 320vh; }
+.intro-stage { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; }
+#globe { position: absolute; inset: 0; }
+.intro-title { position: absolute; left: 6vw; top: 26vh; max-width: 520px; }
+.intro-title h1 {
+  margin: 0;
+  font: 600 clamp(44px, 7vw, 88px)/1 "Fredoka", sans-serif;
+  background: linear-gradient(90deg, #b69cff, #ff8fb1 60%, #ffd36e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.intro-title h1 .sparkle { -webkit-text-fill-color: #ffd36e; }
+.intro-eyebrow { margin: 0 0 10px; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.intro-tag { margin: 14px 0 4px; font-size: 19px; }
+.intro-by { margin: 0; color: var(--muted); }
+.intro-by b { color: #ff8fb1; }
+.intro-cue {
+  position: absolute; left: 50%; bottom: 5vh; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-size: 14px; color: var(--muted);
+}
+.intro-cue i { font-style: normal; color: #ffd36e; animation: cue-bob 1.6s ease-in-out infinite; }
+@keyframes cue-bob { 50% { transform: translateY(6px); } }
+.intro-skip {
+  position: absolute; right: 18px; top: 16px;
+  padding: 6px 14px; border-radius: 999px;
+  font: 600 13px "Nunito", sans-serif; color: var(--ink);
+  background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-line); cursor: pointer;
+}
+.intro-skip:hover { background: rgba(255, 255, 255, 0.16); }
+@media (max-width: 760px) {
+  .intro-title { left: 6vw; right: 6vw; top: 9vh; }
+  .intro-tag { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-cue i { animation: none; }
+  #intro { transition: none; }
+}
