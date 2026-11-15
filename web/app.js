@@ -120,9 +120,77 @@ function radarPath(frame, pol) {
   return key ? frame.layers[key] : null;
 }
 
+// ---------- plant view: where leaves turn the radar signal "sideways" ----------
+// The two grey images (VV/VH or HH/HV) are 90-97% alike, so showing the cross-pol image alone
+// looks almost the same as water view. The plant signal is in the DIFFERENCE: vegetation sends back
+// relatively more cross-pol (VH - VV in dB is higher). We map that ratio to a green glow, on a dim
+// copy of the landscape. Water and very dark pixels are masked: there both channels sink into noise
+// and the ratio means nothing (NISAR would otherwise make the lake glow).
+// Fixed scale per satellite (dB of cross minus co), so the colours don't flicker between dates.
+const PLANT_SCALE = { "Sentinel-1": [-7.5, -4.0], NISAR: [-6.2, -3.4] };
+const PLANT_DARK_DB = -18; // co-pol darker than this: water or radar shadow, never "plants"
+const plantCache = new Map();
+
+function plantUrl(frame) {
+  if (!plantCache.has(frame.date)) {
+    plantCache.set(frame.date, (async () => {
+      const coKey = polKey(frame, "co"), crossKey = polKey(frame, "cross");
+      if (!coKey || !crossKey) return null;
+      const [co, cross, water] = await Promise.all([
+        loadPixels(frame.layers[coKey]), loadPixels(frame.layers[crossKey]),
+        frame.layers.water ? loadPixels(frame.layers.water) : null,
+      ]);
+      const { width: w, height: h } = co;
+      const [cLo, cHi] = state.stretch[coKey], [xLo, xHi] = state.stretch[crossKey];
+      const [lo, hi] = PLANT_SCALE[frame.sensor] || PLANT_SCALE["Sentinel-1"];
+      // ratio in dB, then a 3x3 average to calm the speckle
+      const ratio = new Float32Array(w * h), coDb = new Float32Array(w * h), valid = new Uint8Array(w * h);
+      for (let i = 0; i < w * h; i++) {
+        const c = co.data[i * 4], x = cross.data[i * 4];
+        valid[i] = c > 0 && x > 0 ? 1 : 0;
+        coDb[i] = cLo + (c / 255) * (cHi - cLo);
+        ratio[i] = xLo + (x / 255) * (xHi - xLo) - coDb[i];
+      }
+      const out = new ImageData(w, h);
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const i = y * w + x, o = i * 4;
+        if (!valid[i]) continue; // transparent outside the image
+        let sum = 0, n = 0;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+          const yy = y + dy, xx = x + dx;
+          if (yy < 0 || xx < 0 || yy >= h || xx >= w || !valid[yy * w + xx]) continue;
+          sum += ratio[yy * w + xx]; n++;
+        }
+        const isWater = water && water.data[o + 3] > 0;
+        let g = Math.min(1, Math.max(0, (sum / n - lo) / (hi - lo)));
+        if (isWater || coDb[i] < PLANT_DARK_DB) g = 0;
+        const base = co.data[o] * 0.38;
+        out.data[o] = base + g * (110 - base) * 0.85;
+        out.data[o + 1] = base + g * (255 - base) * 0.9;
+        out.data[o + 2] = base + g * (150 - base) * 0.85;
+        out.data[o + 3] = 255;
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d").putImageData(out, 0, 0);
+      return canvas.toDataURL();
+    })());
+  }
+  return plantCache.get(frame.date);
+}
+
 function paint(slot, frame) {
-  const radar = radarPath(frame, state.pol);
-  slot.radar.setUrl(radar ? "data/" + radar : BLANK).setOpacity(radar ? state.opacity : 0);
+  slot.want = frame.date;
+  if (state.pol === "cross") {
+    // Plant view is computed in the browser; keep the old image until the new one is ready (no flicker)
+    plantUrl(frame).then((url) => {
+      if (slot.want !== frame.date || state.pol !== "cross") return;
+      slot.radar.setUrl(url || BLANK).setOpacity(url ? state.opacity : 0);
+    });
+  } else {
+    const radar = radarPath(frame, state.pol);
+    slot.radar.setUrl(radar ? "data/" + radar : BLANK).setOpacity(radar ? state.opacity : 0);
+  }
 
   const water = frame.layers.water;
   slot.water.setUrl(water ? "data/" + water : BLANK).setOpacity(state.showWater && !state.shore && water ? 1 : 0);
@@ -413,6 +481,8 @@ function showTab(name) {
 
 function update(changes) {
   Object.assign(state, changes);
+  // The water history map already shows every year at once, so compare makes no sense on top of it
+  if (state.history) state.compare = false;
   render();
 }
 
@@ -498,22 +568,30 @@ async function showSpot(latlng) {
     ? "Never under water: dry land the whole time."
     : `First under water: <b>${series[firstWet].date}</b>`;
 
+  // Each popup owns its marker, canvas and chart. When Leaflet closes the previous popup (it fades out
+  // for ~200 ms), that popup only cleans up its own things, never the new ones.
   spotMarker?.remove();
-  spotMarker = L.circleMarker(latlng, { radius: 6, color: "#fff", weight: 2, fillColor: "#ff8fd8", fillOpacity: 1 }).addTo(map);
+  const marker = L.circleMarker(latlng, { radius: 6, color: "#fff", weight: 2, fillColor: "#ff8fd8", fillOpacity: 1 }).addTo(map);
+  spotMarker = marker;
+  let popupChart = null;
 
-  L.popup({ className: "spot-popup", minWidth: 300, maxWidth: 320 })
+  const popup = L.popup({ className: "spot-popup", minWidth: 300, maxWidth: 320 })
     .setLatLng(latlng)
     .setContent(`<div class="spot">
         <b class="spot-title">This spot over time ✦</b>
         <small>${latlng.lat.toFixed(4)}° N, ${latlng.lng.toFixed(4)}° E</small>
-        <div class="spot-chart"><canvas id="spot-canvas"></canvas></div>
+        <div class="spot-chart"><canvas class="spot-canvas"></canvas></div>
         <p>${verdict}</p>
         <p class="hint">Filled dots: our water mask says <i>water</i> on that date. Water view drops sharply when the lake arrives.</p>
       </div>`)
-    .on("remove", () => { spotChart?.destroy(); spotMarker?.remove(); })
+    .on("remove", () => {
+      popupChart?.destroy();
+      marker.remove();
+      if (spotChart === popupChart) spotChart = null;
+      if (spotMarker === marker) spotMarker = null;
+    })
     .openOn(map);
 
-  spotChart?.destroy();
   const line = (label, key, color) => ({
     label,
     data: series.map((s) => ({ x: s.time, y: s[key] })),
@@ -524,7 +602,8 @@ async function showSpot(latlng) {
     showLine: true,
     borderWidth: 1.5,
   });
-  spotChart = new Chart($("spot-canvas"), {
+  // the canvas inside THIS popup (an id would also match the old popup that is still fading out)
+  popupChart = spotChart = new Chart(popup.getElement().querySelector(".spot-canvas"), {
     type: "scatter",
     data: { datasets: [line("Water view", "co", COLORS["Sentinel-1"]), line("Plant view", "cross", COLORS.NISAR)] },
     options: {
@@ -589,6 +668,7 @@ function readLink() {
     before: p.has("b") ? at(p.get("b")) : 0,
     fade: unit(p.get("f"), 0.5),
   });
+  if (state.history) state.compare = false;  // same rule as update()
   const [lat, lng, zoom] = (p.get("m") || "").split(",").map(Number);
   if ([lat, lng, zoom].every(Number.isFinite)) map.setView([lat, lng], zoom);
   return true;
@@ -618,7 +698,7 @@ function loadImage(path) {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error(`could not load ${path}`));
-    img.src = "data/" + path;
+    img.src = path.startsWith("data:") ? path : "data/" + path;
   });
 }
 
@@ -670,7 +750,8 @@ async function exportTimelapse() {
     const { GIFEncoder, quantize, applyPalette } = await import("./lib/gifenc.esm.js");
     await document.fonts.ready;
 
-    const first = await loadImage(radarPath(state.frames[0], state.pol) || state.frames[0].layers.water);
+    const firstRadar = state.pol === "cross" ? await plantUrl(state.frames[0]) : radarPath(state.frames[0], state.pol);
+    const first = await loadImage(firstRadar || state.frames[0].layers.water);
     const scale = GIF_WIDTH / first.width;
     const mapTop = 80;
     const mapH = Math.round(first.height * scale);
@@ -684,7 +765,7 @@ async function exportTimelapse() {
 
     for (const [i, frame] of state.frames.entries()) {
       button.textContent = `Drawing pass ${i + 1} of ${state.frames.length}…`;
-      const radar = radarPath(frame, state.pol);
+      const radar = state.pol === "cross" ? await plantUrl(frame) : radarPath(frame, state.pol);
       const images = {
         radar: radar ? await loadImage(radar) : null,
         water: frame.layers.water ? await loadImage(frame.layers.water) : null,
@@ -882,7 +963,8 @@ function render() {
   $("sensor").title = isBeta(now) ? "Pre-calibration (BETA) NISAR product: less certain" : "";
   $("sensor").className = `badge ${now.sensor === "NISAR" ? "nisar" : "s1"}`;
   $("co-name").textContent = now.layers.VV ? "VV" : "HH";
-  $("cross-name").textContent = now.layers.VH ? "VH" : "HV";
+  $("cross-name").textContent = now.layers.VH ? "VH vs VV" : "HV vs HH";
+  $("plant-legend").hidden = state.pol !== "cross" || (state.history && waterHistory.ready);
 
   // keep every control in sync, whether the change came from the story or from a click
   $("time").value = state.index;
@@ -893,6 +975,8 @@ function render() {
   $("opacity").value = state.opacity;
   $("fade").value = state.fade;
   $("compare").checked = state.compare;
+  $("compare").disabled = state.history;
+  $("compare-off").hidden = !state.history;
   $("compare-options").hidden = !state.compare;
   $("fade-row").hidden = state.mode !== "fade";
   $("mode-hint").textContent = MODE_HINTS[state.mode];

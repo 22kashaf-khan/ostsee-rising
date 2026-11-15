@@ -65,6 +65,7 @@
           <span><i style="background:rgba(80,120,230,0.55)"></i>water both times</span>
         </div>
       </div>
+      <div id="plant-legend" class="legend plant-legend" hidden><b>PLANT VIEW</b><span><i class="sw"></i> plants and bushes</span><span><i class="sw dim"></i> bare ground, water</span></div>
       <div id="map-hint" class="map-hint">✦ Tap or click the lake to see a spot's story</div>
 
       <div id="label-before" class="map-label left" hidden></div>
@@ -130,7 +131,7 @@
           <span class="chapter-num">Chapter 5</span>
           <h3>NISAR keeps watch</h3>
           <p>The lake is full, so NASA and ISRO's new <b>NISAR</b> satellite takes the night shift. Across <b>17 passes</b> from October 2025 to October 2026 it measures a median of <b>18.6 km²</b>, close to LEAG's 18.5. Careful: the 8 winter passes are <b>beta</b> data, taken before calibration; the 9 calibrated passes alone say 17.6 km².</p>
-          <p>This is <b>plant view</b>: NISAR's longer radar waves (about 24 cm) slip between leaves, so calm water stays dark while plants and rough shores shine. Drag the star: the empty pit in 2019 on the left, today on the right.</p>
+          <p>This is <b>plant view</b>: leaves and branches bounce the radar wave around and turn part of it "sideways". We compare the two radar channels and paint that sideways share <b>green</b>, so green means plants. Drag the star: the bare pit in 2019 on the left, today on the right, with green life creeping back around the shore.</p>
         </article>
 
         <article class="chapter" data-date="last" data-opacity="0.5">
@@ -173,6 +174,7 @@
         <section class="card">
           <h2>Compare two dates</h2>
           <label class="check"><input id="compare" type="checkbox"> Turn on compare</label>
+          <p id="compare-off" class="hint" hidden>Compare is off while the <b>water history map</b> is on: it already shows every year in one picture. Turn the history map off to compare two dates.</p>
           <div id="compare-options" hidden>
             <div class="segmented small" role="group">
               <button data-mode="swipe" class="active">Swipe</button>
