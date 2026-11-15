@@ -131,11 +131,29 @@
       intro.remove();
     }, instant ? 0 : 900);
     // the map zooms from the region down onto the lake
-    if (typeof map !== "undefined" && map && state.bounds && !instant) {
-      const lake = L.latLngBounds(state.bounds);
-      map.setView(lake.getCenter(), 9, { animate: false });
-      map.flyToBounds(lake, { padding: [24, 24], duration: reduce ? 0 : 2.2 });
-    }
+    if (typeof map !== "undefined" && map && state.bounds && !instant) flyToLake();
+  }
+
+  // The visitor is usually still scrolling (or swiping) when the intro ends. On a map, scrolling
+  // means zooming, so the last scrolls would zoom it out or drag it away. Hold the map still while
+  // it flies in, and only let it react again once the scrolling has stopped.
+  function flyToLake() {
+    const lake = L.latLngBounds(state.bounds);
+    const held = [map.scrollWheelZoom, map.dragging, map.touchZoom, map.doubleClickZoom].filter((h) => h.enabled());
+    held.forEach((h) => h.disable());
+
+    let lastInput = performance.now();
+    const onInput = () => (lastInput = performance.now());
+    ["wheel", "touchmove"].forEach((type) => addEventListener(type, onInput, { passive: true }));
+
+    map.setView(lake.getCenter(), 9, { animate: false });
+    map.flyToBounds(lake, { padding: [24, 24], duration: reduce ? 0 : 2.2 });
+    map.once("moveend", function release() {
+      if (performance.now() - lastInput < 800) return setTimeout(release, 200); // still scrolling: wait
+      map.fitBounds(lake, { padding: [24, 24], animate: false }); // exactly on the lake, whatever happened
+      held.forEach((h) => h.enable());
+      ["wheel", "touchmove"].forEach((type) => removeEventListener(type, onInput));
+    });
   }
   intro.querySelector(".intro-skip").addEventListener("click", () => finish(false));
   addEventListener("keydown", (e) => { if (e.key === "Escape") finish(false); });
