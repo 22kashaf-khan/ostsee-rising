@@ -1,6 +1,6 @@
 # Ostsee Rising ✦
 
-A coal mine learns to swim: the Cottbuser Ostsee filling up (2019–2025), seen by Sentinel-1 and NASA-ISRO NISAR radar.
+A coal mine learns to swim: the Cottbuser Ostsee filling up (2019–2026), seen by Sentinel-1 and NASA-ISRO NISAR radar.
 NASA Space Apps Challenge 2026 · "Dancing with the SARs"
 
 ## Run the web app
@@ -31,16 +31,26 @@ Open http://localhost:8000. Opening `index.html` directly won't work, because br
 |---|---|
 | `web/` | The website (no build step: plain HTML, CSS, JS) |
 | `web/DATA_CONTRACT.md` | **Read this, data team.** Exact files the website expects |
-| `web/data/` | `manifest.json` + PNG frames (currently DEMO data) |
+| `web/data/` | `manifest.json` + PNG frames: 94 real satellite passes, 2019–2026 |
 | `web/lib/` | Leaflet (map), Chart.js (charts), gifenc (GIF export): stored locally so the demo works on bad Wi-Fi |
-| `tools/make_demo_data.py` | Makes fake frames in the contract format |
-| `sentinel1_fetch.py` | Orders and downloads the Sentinel-1 images (data team) |
+| `processing/get_lake.py` | Lake outline from OpenStreetMap → `lake.geojson` |
+| `processing/s1_order.py` | Sentinel-1 (2019–2025): orders terrain-corrected images from NASA ASF HyP3, then downloads them |
+| `processing/nisar_fetch.py` | NISAR (2025–2026): reads only the pixels around the lake from NASA Earthdata |
+| `processing/process.py` | Despeckle, find the water threshold, measure the lake area per date |
+| `processing/export_web.py` | Turns the results into `web/data/` (see `DATA_CONTRACT.md`) |
 
-## Swapping in real data
+## Updating the data
 
-1. Delete `web/data/`.
-2. Put the real `manifest.json` and `frames/` there, following `DATA_CONTRACT.md`.
-3. Reload the page. No code changes needed. The "demo data" badge disappears automatically.
+```bash
+cd processing
+python get_lake.py
+python s1_order.py submit        # later: status, then download
+python nisar_fetch.py --list     # pick a track, then fetch it
+python process.py --raw data/raw_s1 --out web/data/s1 --co VV --cross VH --flood-start 20190412 --train-from 20241201
+python process.py
+python export_web.py --out ../web/data
+```
+Then commit `web/data/`. Raw satellite files stay on your computer (`.gitignore`).
 
 ## Editing the story
 

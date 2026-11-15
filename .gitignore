@@ -16,6 +16,7 @@ Thumbs.db
 .venv/
 __pycache__/
 processing/data/
+processing/web/
 *.h5
 *.zip
 *.tif

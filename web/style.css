@@ -100,6 +100,11 @@ h1 {
 .star:nth-child(4) { animation-delay: 1.2s; }
 @keyframes float { 50% { transform: translateY(-3px); } }
 
+/* People who switch on "reduce motion" in their system settings get a calm page */
+@media (prefers-reduced-motion: reduce) {
+  .sky::after, .star { animation: none; }
+}
+
 main { display: flex; flex: 1; min-height: 0; gap: 12px; padding: 0 12px 12px; }
 
 /* ---------- map ---------- */
@@ -250,7 +255,6 @@ main { display: flex; flex: 1; min-height: 0; gap: 12px; padding: 0 12px 12px; }
 }
 .badge.s1 { color: var(--s1); border-color: rgba(110, 231, 249, 0.4); }
 .badge.nisar { color: var(--nisar); border-color: rgba(255, 143, 216, 0.4); }
-.badge-demo { color: var(--gold); border-color: rgba(255, 211, 110, 0.5); }
 
 .time-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
 .time-row input { flex: 1; }

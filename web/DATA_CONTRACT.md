@@ -1,5 +1,14 @@
 # What the web app needs from the data pipeline
 
+**You don't write this by hand.** After `process.py`, run the converter in `processing/`:
+
+```bash
+cd processing
+python export_web.py --out ../web/data
+```
+It re-draws every date onto lat/lon, applies the water rule `process.py` found, adds the stretch and
+the official LEAG numbers, and replaces `web/data/`. The format below is what it produces.
+
 Everything goes in `web/data/`. The app reads only these files.
 
 ## 1. `web/data/manifest.json`
@@ -10,7 +19,8 @@ Everything goes in `web/data/`. The app reads only these files.
   "stretch": { "VV": [-25, 0], "VH": [-30, -5], "HH": [-25, 0], "HV": [-30, -5] },
   "official": [
     { "date": "2023-09-05", "area_km2": 5.9,  "source": "LEAG, 07.09.2023" },
-    { "date": "2025-02-20", "area_km2": 18.5, "source": "LEAG, 11.06.2025" }
+    { "date": "2024-02-16", "area_km2": 17.3, "source": "LEAG, 14.03.2024" },
+    { "date": "2025-02-20", "area_km2": 18.5, "source": "LEAG, 13.03.2025" }
   ],
   "frames": [
     {
@@ -41,7 +51,8 @@ Everything goes in `web/data/`. The app reads only these files.
 |---|---|
 | `bounds` | `[[south, west], [north, east]]` in lat/lon. **Every PNG must cover exactly this box.** |
 | `stretch` | Optional. The dB range each radar PNG was scaled to (grey 0 = first number, 255 = second). The click-anywhere chart uses it to turn grey back into dB. Defaults shown. |
-| `official` | Official LEAG measurements, drawn as reference points on the chart |
+| `maturity` | Optional, on a frame: `"BETA"` for a pre-calibration NISAR product. Shown as "beta". |
+| `official` | Official LEAG **measurements** (not targets), drawn as reference points on the chart |
 | `frames` | One entry per satellite date, **sorted by date** |
 | `area_km2` | Lake area our pipeline measured (water pixels inside the lake outline) |
 | `layers` | Any subset of `VV`, `VH`, `HH`, `HV`, `water`. Missing layers are simply hidden. |

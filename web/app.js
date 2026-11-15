@@ -51,7 +51,6 @@ async function start() {
   state.official = manifest.official || [];
   state.bounds = manifest.bounds;
   state.stretch = { ...DEFAULT_STRETCH, ...(manifest.stretch || {}) };
-  $("demo-badge").hidden = !manifest.demo;
 
   buildMap(manifest.bounds);
   buildControls();
@@ -263,8 +262,10 @@ const MODE_HINTS = {
 
 // ---------- controls ----------
 
+const isBeta = (f) => f.maturity === "BETA";   // pre-calibration NISAR product
+
 function frameLabel(f) {
-  return `${f.date} · ${f.sensor === "NISAR" ? "NISAR" : "S-1"}`;
+  return `${f.date} · ${f.sensor === "NISAR" ? "NISAR" : "S-1"}${isBeta(f) ? " (beta)" : ""}`;
 }
 
 function buildControls() {
@@ -470,6 +471,12 @@ function writeLink() {
   window.history.replaceState(null, "", location.pathname + location.search + hash);
 }
 
+// A number from the link, kept between 0 and 1; anything broken falls back to the default
+function unit(value, fallback) {
+  const n = Number(value);
+  return value !== null && Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : fallback;
+}
+
 function readLink() {
   const p = new URLSearchParams(location.hash.slice(1));
   if (!p.has("d")) return false;
@@ -478,12 +485,12 @@ function readLink() {
     index: at(p.get("d")),
     pol: p.get("v") === "plant" ? "cross" : "co",
     showWater: p.get("w") !== "0",
-    opacity: p.has("o") ? +p.get("o") : DEFAULT_OPACITY,
+    opacity: unit(p.get("o"), DEFAULT_OPACITY),
     history: p.get("h") === "1",
     compare: p.has("c"),
     mode: ["swipe", "fade", "spy"].includes(p.get("c")) ? p.get("c") : "swipe",
     before: p.has("b") ? at(p.get("b")) : 0,
-    fade: p.has("f") ? +p.get("f") : 0.5,
+    fade: unit(p.get("f"), 0.5),
   });
   const [lat, lng, zoom] = (p.get("m") || "").split(",").map(Number);
   if ([lat, lng, zoom].every(Number.isFinite)) map.setView([lat, lng], zoom);
@@ -696,7 +703,7 @@ function buildChart() {
     backgroundColor: COLORS[sensor] || "#ccc",
     showLine: true,
     borderWidth: 2,
-    pointRadius: 2.5,
+    pointRadius: state.frames.length > 40 ? 1.5 : 2.5,
   }));
   datasets.push({
     label: "Official (LEAG)",
@@ -773,7 +780,8 @@ function render() {
   // readout
   $("date").textContent = now.date;
   $("area").textContent = now.area_km2.toFixed(1);
-  $("sensor").textContent = now.sensor;
+  $("sensor").textContent = isBeta(now) ? `${now.sensor} · beta` : now.sensor;
+  $("sensor").title = isBeta(now) ? "Pre-calibration (BETA) NISAR product: less certain" : "";
   $("sensor").className = `badge ${now.sensor === "NISAR" ? "nisar" : "s1"}`;
   $("co-name").textContent = now.layers.VV ? "VV" : "HH";
   $("cross-name").textContent = now.layers.VH ? "VH" : "HV";

@@ -41,8 +41,8 @@ OFFICIAL = [
      "source": "LEAG report to Cottbus city council, 07.09.2023 (water level +57.9 m)"},
     {"date": "2024-02-16", "area_km2": 17.3,
      "source": "LEAG report to the Brandenburg lignite committee, 14.03.2024"},
-    {"date": "2024-12-23", "area_km2": 18.8,
-     "source": "LEAG: target level +62.5 m reached 23.12.2024; target water area 18.8 km2"},
+    {"date": "2025-02-20", "area_km2": 18.5,
+     "source": "LEAG: lake full at +62.5 m, measured water area 18.5 km2 (reports 13.03.2025 and 11.06.2025)"},
 ]
 
 SENSORS = [
