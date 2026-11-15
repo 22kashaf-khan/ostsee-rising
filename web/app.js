@@ -38,7 +38,7 @@ const waterHistory = { ready: false, first: null, width: 0, height: 0 }; // firs
 async function start() {
   let manifest;
   try {
-    manifest = await (await fetch("data/manifest.json")).json();
+    manifest = await (await fetch("data/manifest.json", { cache: "no-cache" })).json();  // always the newest data
   } catch {
     $("panel").insertAdjacentHTML("afterbegin",
       `<p class="card">Could not load <b>data/manifest.json</b>.<br>
