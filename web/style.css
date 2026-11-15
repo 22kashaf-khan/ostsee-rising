@@ -431,3 +431,5 @@ html.intro-on, html.intro-on body { overflow: hidden; }
   .intro-cue i { animation: none; }
   #intro { transition: none; }
 }
+
+.chapter .sources { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
