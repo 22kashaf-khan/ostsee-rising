@@ -215,6 +215,17 @@ function yearColor(year) {
   return mixColor(HISTORY_STOPS, years.length > 1 ? years.indexOf(year) / (years.length - 1) : 0);
 }
 
+// A pixel counts as "under water" from pass i only if it is water on STEADY_PASSES passes in a row
+// (fewer at the very end of the series), so wind gusts and radar speckle can't fake a new shoreline.
+const STEADY_PASSES = 3;
+
+function staysWater(i, isWaterAt, count) {
+  for (let k = i; k < Math.min(i + STEADY_PASSES, count); k++) {
+    if (!isWaterAt(k)) return false;
+  }
+  return true;
+}
+
 async function buildHistory() {
   const masks = await Promise.all(state.frames.map((f) => (f.layers.water ? loadPixels(f.layers.water) : null)));
   const { width, height } = masks.find(Boolean);
@@ -223,9 +234,7 @@ async function buildHistory() {
 
   for (let p = 0; p < first.length; p++) {
     for (let i = 0; i < masks.length; i++) {
-      if (!masks[i] || !isWater(i, p)) continue;
-      // must still be water on the next pass, so a single noisy speckle doesn't count
-      if (i === masks.length - 1 || isWater(i + 1, p)) { first[p] = i; break; }
+      if (masks[i] && staysWater(i, (k) => isWater(k, p), masks.length)) { first[p] = i; break; }
     }
   }
 
@@ -395,8 +404,8 @@ async function showSpot(latlng) {
   const series = await spotSeries(latlng);
   if (series.includes(null)) return;
 
-  // same rule as the history map: water now and still water on the next pass
-  const firstWet = series.findIndex((s, i) => s.water && (i === series.length - 1 || series[i + 1].water !== false));
+  // same rule as the history map
+  const firstWet = series.findIndex((s, i) => s.water && staysWater(i, (k) => series[k].water !== false, series.length));
   const verdict = firstWet < 0
     ? "Never under water: dry land the whole time."
     : `First under water: <b>${series[firstWet].date}</b>`;
