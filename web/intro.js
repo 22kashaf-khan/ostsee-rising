@@ -148,12 +148,19 @@
 
     map.setView(lake.getCenter(), 9, { animate: false });
     map.flyToBounds(lake, { padding: [24, 24], duration: reduce ? 0 : 2.2 });
-    map.once("moveend", function release() {
+
+    let released = false;
+    function release() {
+      if (released) return;
       if (performance.now() - lastInput < 800) return setTimeout(release, 200); // still scrolling: wait
+      released = true;
       map.fitBounds(lake, { padding: [24, 24], animate: false }); // exactly on the lake, whatever happened
       held.forEach((h) => h.enable());
       ["wheel", "touchmove"].forEach((type) => removeEventListener(type, onInput));
-    });
+    }
+    map.once("moveend", release);
+    // Safety net: browsers pause animations in background tabs, so the flight may never finish there
+    setTimeout(release, 5000);
   }
   intro.querySelector(".intro-skip").addEventListener("click", () => finish(false));
   addEventListener("keydown", (e) => { if (e.key === "Escape") finish(false); });

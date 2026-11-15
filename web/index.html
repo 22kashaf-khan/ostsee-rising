@@ -57,6 +57,14 @@
       </div>
       <div id="lens" hidden></div>
       <div id="history-legend" class="legend" hidden></div>
+      <div id="shore-legend" class="legend" hidden>
+        <b>What changed</b>
+        <div class="swatches">
+          <span><i style="background:#6ee7f9"></i>new water</span>
+          <span><i style="background:#ff5c7a"></i>water gone</span>
+          <span><i style="background:rgba(80,120,230,0.55)"></i>water both times</span>
+        </div>
+      </div>
       <div id="map-hint" class="map-hint">✦ Tap or click the lake to see a spot's story</div>
 
       <div id="label-before" class="map-label left" hidden></div>
@@ -181,6 +189,19 @@
               <span>After</span>
             </label>
             <p id="mode-hint" class="hint"></p>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Shoreline Watch <small class="new">✦ new</small></h2>
+          <label class="check"><input id="shore" type="checkbox"> Show where the water edge changed</label>
+          <div id="shore-options" hidden>
+            <div class="pickers">
+              <label>From <select id="shore-from"></select></label>
+              <label>To <select id="shore-to"></select></label>
+            </div>
+            <p id="shore-stats" class="shore-stats">Working it out…</p>
+            <p class="hint">Aqua is new water, red is water that's gone. It shows changes of about 40 m or more. It can't predict a landslide; it shows where to look first.</p>
           </div>
         </section>
 

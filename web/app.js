@@ -24,12 +24,15 @@ const state = {
   fade: 0.5,           // 0 = before, 1 = after
   spy: null,           // lens centre in map container pixels
   history: false,      // water history map on/off
+  shore: false,        // shoreline watch on/off
+  shoreFrom: 0,        // shoreline watch: compare this pass ...
+  shoreTo: 0,          // ... with this one
   tab: "story",        // story | explore (only explore views are written into the link)
 };
 
 const $ = (id) => document.getElementById(id);
 const all = (selector) => document.querySelectorAll(selector);
-let map, slots, chart, playTimer, historyLayer;
+let map, slots, chart, playTimer, historyLayer, shoreLayer;
 const waterHistory = { ready: false, first: null, width: 0, height: 0 }; // first[p] = frame index when pixel p became water
 
 
@@ -83,8 +86,10 @@ function buildMap(bounds) {
   map.createPane("before").style.zIndex = 410;
   map.createPane("after").style.zIndex = 420;
   map.createPane("history").style.zIndex = 430;
+  map.createPane("shore").style.zIndex = 435;
   slots = { before: makeSlot(bounds, "before"), after: makeSlot(bounds, "after") };
   historyLayer = L.imageOverlay(BLANK, bounds, { pane: "history", className: "history-layer", opacity: 0 }).addTo(map);
+  shoreLayer = L.imageOverlay(BLANK, bounds, { pane: "shore", opacity: 0 }).addTo(map);
 
   map.on("move zoomend resize", updateCompare);
   map.on("moveend", () => writeLink());
@@ -120,7 +125,7 @@ function paint(slot, frame) {
   slot.radar.setUrl(radar ? "data/" + radar : BLANK).setOpacity(radar ? state.opacity : 0);
 
   const water = frame.layers.water;
-  slot.water.setUrl(water ? "data/" + water : BLANK).setOpacity(state.showWater && water ? 1 : 0);
+  slot.water.setUrl(water ? "data/" + water : BLANK).setOpacity(state.showWater && !state.shore && water ? 1 : 0);
 }
 
 
@@ -262,6 +267,77 @@ function buildLegend() {
   }</div>`;
 }
 
+// ---------- shoreline watch: where the water edge changed between two passes ----------
+
+const SHORE_COLORS = {
+  gained: [110, 231, 249, 240],  // aqua: water now, dry before
+  lost: [255, 92, 122, 240],     // red: water before, dry now
+  both: [80, 120, 230, 110],     // faint blue: water both times
+};
+const shoreCache = new Map();
+
+// Area of one pixel of the water images in km² (the images cover state.bounds exactly)
+function pixelKm2(width, height) {
+  const [[south, west], [north, east]] = state.bounds;
+  const midLat = ((south + north) / 2) * Math.PI / 180;
+  const widthKm = (east - west) * 111.32 * Math.cos(midLat);
+  const heightKm = (north - south) * 110.57;
+  return (widthKm * heightKm) / (width * height);
+}
+
+function shoreChange(fromIndex, toIndex) {
+  const key = `${fromIndex}-${toIndex}`;
+  if (!shoreCache.has(key)) {
+    shoreCache.set(key, (async () => {
+      const [a, b] = await Promise.all([fromIndex, toIndex].map((i) => loadPixels(state.frames[i].layers.water)));
+      const { width, height } = b;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      const image = ctx.createImageData(width, height);
+      let gained = 0, lost = 0;
+      for (let p = 0; p < width * height; p++) {
+        const before = a.data[p * 4 + 3] > 0;
+        const after = b.data[p * 4 + 3] > 0;
+        if (!before && !after) continue;
+        const kind = after && !before ? "gained" : before && !after ? "lost" : "both";
+        if (kind === "gained") gained++;
+        if (kind === "lost") lost++;
+        image.data.set(SHORE_COLORS[kind], p * 4);
+      }
+      ctx.putImageData(image, 0, 0);
+      const km2 = pixelKm2(width, height);
+      return { url: canvas.toDataURL(), gained: gained * km2, lost: lost * km2 };
+    })());
+  }
+  return shoreCache.get(key);
+}
+
+function renderShore() {
+  const on = state.shore && state.frames[state.shoreFrom].layers.water && state.frames[state.shoreTo].layers.water;
+  $("shore").checked = state.shore;
+  $("shore-options").hidden = !state.shore;
+  $("shore-from").value = state.shoreFrom;
+  $("shore-to").value = state.shoreTo;
+  $("shore-legend").hidden = !on;
+  if (!on) {
+    shoreLayer.setOpacity(0);
+    return;
+  }
+  const from = state.shoreFrom, to = state.shoreTo;
+  shoreChange(from, to).then((change) => {
+    if (!state.shore || state.shoreFrom !== from || state.shoreTo !== to) return; // the choice changed meanwhile
+    shoreLayer.setUrl(change.url).setOpacity(1);
+    const days = Math.round((Date.parse(state.frames[to].date) - Date.parse(state.frames[from].date)) / 864e5);
+    const warn = [from, to].some((i) => isBeta(state.frames[i])) ? " · ⚠️ includes a beta pass" : "";
+    $("shore-stats").innerHTML =
+      `<span class="gain">+${change.gained.toFixed(2)} km² new water</span> · ` +
+      `<span class="loss">−${change.lost.toFixed(2)} km² gone</span><br>` +
+      `<small>${Math.abs(days)} days apart${warn}</small>`;
+  });
+}
+
 const MODE_HINTS = {
   swipe: "Drag the star on the map: before on the left, after on the right.",
   fade: "Slide to melt one date into the other.",
@@ -288,7 +364,7 @@ function buildControls() {
     btn.addEventListener("click", () => update({ mode: btn.dataset.mode })));
 
   $("show-water").addEventListener("change", (e) => update({ showWater: e.target.checked }));
-  $("show-history").addEventListener("change", (e) => update({ history: e.target.checked }));
+  $("show-history").addEventListener("change", (e) => update({ history: e.target.checked, shore: false }));
   $("opacity").addEventListener("input", (e) => update({ opacity: +e.target.value }));
   $("fade").addEventListener("input", (e) => update({ fade: +e.target.value }));
 
@@ -300,7 +376,7 @@ function buildControls() {
 
   $("compare").addEventListener("change", (e) => {
     const on = e.target.checked;
-    update({ compare: on, before: on && state.before === state.index ? 0 : state.before });
+    update({ compare: on, shore: on ? false : state.shore, before: on && state.before === state.index ? 0 : state.before });
   });
 
   all("[data-tab]").forEach((btn) => btn.addEventListener("click", () => showTab(btn.dataset.tab)));
@@ -308,6 +384,18 @@ function buildControls() {
     e.stopPropagation();
     showTab(btn.dataset.goto);
   }));
+
+  // shoreline watch: by default the last two passes
+  $("shore-from").innerHTML = options;
+  $("shore-to").innerHTML = options;
+  state.shoreTo = state.frames.length - 1;
+  state.shoreFrom = Math.max(0, state.shoreTo - 1);
+  $("shore").addEventListener("change", (e) => {
+    const on = e.target.checked;
+    update(on ? { shore: true, compare: false, history: false, index: state.shoreTo } : { shore: false });
+  });
+  $("shore-from").addEventListener("change", (e) => update({ shoreFrom: +e.target.value }));
+  $("shore-to").addEventListener("change", (e) => update({ shoreTo: +e.target.value, index: +e.target.value }));
 
   $("copy-link").addEventListener("click", copyLink);
   $("export-gif").addEventListener("click", exportTimelapse);
@@ -784,6 +872,7 @@ function render() {
     waterHistory.building = buildHistory().then(render);
   }
   historyLayer.setOpacity(state.history && waterHistory.ready ? 1 : 0);
+  renderShore();
   $("history-legend").hidden = !(state.history && waterHistory.ready);
 
   // readout
